@@ -10,7 +10,7 @@
 :root {
   --deep-forrest: #122523;
   --moss-green: #4c5b39;
-  --warm-ivory: #e8e2cf;
+  --warm-ivory: #efeee9;
   --muted-copper: #895b37;
   --font-body: 'Helvetica', sans-serif;
   --font-size: 16px;
@@ -44,7 +44,7 @@ header {
   position: sticky;
   top: 0;
   background: var(--warm-ivory);
-  border-bottom: 1px solid var(--muted-copper);
+  border-bottom: 2px solid var(--muted-copper);
   z-index: 10;
 }
 
@@ -115,7 +115,7 @@ nav {
     font-size: 1.25rem;
     letter-spacing: 0.15rem;
     color: var(--deep-forrest);
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .hero h2 {
@@ -146,7 +146,7 @@ nav {
     font-size: 1.25rem;
     letter-spacing: 0.15rem;
     color: var(--deep-forrest);
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .btn {
@@ -156,11 +156,12 @@ nav {
     font-size: 0.8rem;
     letter-spacing: 0.15rem;
     text-transform: uppercase;
-    background: var(--deep-forrest);
+    background: var(--moss-green);
     color: var(--warm-ivory);
     font-weight: 600;
     border-radius: 999px;
     transition: transform 0.15s ease;
+    margin-bottom: 2rem;
 }
 
 .btn:hover {
@@ -199,6 +200,17 @@ nav {
     gap: 1rem;
 }
 
+.product-grid-b {
+    display: grid;
+    grid-template-columns: repeat(3, 3fr);
+    gap: 1rem;
+}
+
+.product-grid-c {
+    display: grid;
+    grid-template-columns: repeat(3, 3fr);
+    gap: 1rem;}
+
 .product-card {
     border: 1px solid var(--muted-copper);
     border-radius: 1rem;
@@ -207,7 +219,33 @@ nav {
     transition: box-shadow 0.15s ease;
 }
 
+.product-card-b {
+    border: 1px solid var(--muted-copper);
+    border-radius: 1rem;
+    overflow: hidden;
+    text-align: center;
+    transition: box-shadow 0.15s ease;
+    margin-top: 2rem;
+}
+
+.product-card-c {
+    border: 1px solid var(--muted-copper);
+    border-radius: 1rem;
+    overflow: hidden;
+    text-align: center;
+    transition: box-shadow 0.15s ease;
+    margin-top: 2rem;
+}
+
 .product-card:hover {
+    box-shadow: 0 1rem 2rem var(--deep-forrest);
+}
+
+.product-card-b:hover {
+    box-shadow: 0 1rem 2rem var(--deep-forrest);
+}
+
+.product-card-c:hover {
     box-shadow: 0 1rem 2rem var(--deep-forrest);
 }
 
@@ -217,17 +255,58 @@ nav {
     object-fit: cover;
 }
 
+.product-image-b {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+}
+
+.product-image-c {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+}
+
 .product-card h3 {
-    font-size: 3rem;
-    font-weight: 300;
-    color: var(--muted-copper);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--deep-forrest);
+    margin: 1rem 1rem 0.25rem;
+}
+
+.product-card-b h3 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--deep-forrest);
+    margin: 1rem 1rem 0.25rem;
+}
+
+.product-card-c h3 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--deep-forrest);
     margin: 1rem 1rem 0.25rem;
 }
 
 .product-card .category {
     font-size: 1rem;
-    color: var(--deep-forrest);
+    color: var(--moss-green);
     margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.product-card-b .category {
+    font-size: 1rem;
+    color: var(--moss-green);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.product-card-c .category {
+    font-size: 1rem;
+    color: var(--moss-green);
+    margin-bottom: 1rem;
+    font-weight: 600;
 }
 
 /*Footer*/
@@ -259,7 +338,7 @@ nav {
 .footer-brand p:last-child {
     margin-top: 1.5rem;
     max-width: 300px;
-    font-size: 1.25rem;
+    font-size: 1rem;
     color: var(--moss-green);
 }
 
@@ -271,7 +350,7 @@ nav {
 
 .footer-links a {
     display: block;
-    font-size: 1.25rem;
+    font-size: 1rem;
     color: var(--moss-green);
     margin-bottom: 0.5rem;
     transition: color 0.15s ease;
@@ -288,14 +367,15 @@ nav {
 }
 
 .footer-contact p {
-    font-size: 1.25rem;
+    font-size: 1rem;
     color: var(--moss-green);
     margin-bottom: 0.5rem;
 }
 
 .copyright {
-    font-size: 0.75rem;
+    font-size: 1rem;
     color: var(--deep-forrest);
     text-align: center;
-    margin-top: 1rem;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
 }
