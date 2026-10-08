@@ -57,6 +57,7 @@ nav {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
+  color: var(--accent)
 }
 
 .logo {
@@ -82,7 +83,7 @@ nav {
 }
 
 .nav-links a:hover {
-  color: var(--muted-copper);
+  color: var(--muted-text);
 }
 
 /*hero*/
@@ -96,18 +97,20 @@ nav {
     font-size: 18;
     letter-spacing: 0.15rem;
     text-transform: uppercase;
-    color: var(--text);
+    color: var(--accent);
     margin-bottom: 1rem;
     margin-top: 5rem;
     font-weight: 600;
+    text-align: center;
 }
 
 .hero h1 {
     font-size: 3rem;
     color: var(--text);
     margin-bottom: 1rem;
-    max-width: 700px;
+    max-width: 1100px;
     line-height: 1.2;
+    text-align: center;
 }
 
 .hero h1 span {
@@ -118,7 +121,6 @@ nav {
 
 .about-section {
     display: flex;
-    align-items: center;
     gap: 10px;
     width: 100%;
     max-width: 1100px;
@@ -149,18 +151,16 @@ nav {
 .about-text p {
     font-size: 18px;
     line-height: 1.6;
-    width: 70%;
 }
 
 .about-content {
-    width: 60%;
+    width: 70%;
 }
 
 .about-content h2 {
     font-size: 36px;
     margin-bottom: 10px;
     color: var(--text);
-    padding-left: 5rem;
 }
 
 .about-content p {
@@ -180,6 +180,7 @@ nav {
     font-size: 36px;
     color: var(--text);
     margin-bottom: 3rem;
+    text-align: center;
 }
 
 .book h2 span {
@@ -206,11 +207,6 @@ nav {
     border-radius: 999px;
     transition: transform 0.15s ease;
     margin-bottom: 2rem;
-}
-
-.btn:hover {
-    background: var(--surface);
-    transform: translateY(-3px);
 }
 
 .product-grid {
@@ -261,6 +257,7 @@ nav {
 
 .form-container h1 {
     color: var(--text);
+    text-align: center;
 }
 
 .form-container h1 span {
@@ -277,6 +274,7 @@ nav {
     letter-spacing: 0.5px;
     margin-bottom: 10px;
     margin-top: 10px;
+    text-align: center;
 }
 
 .form-container input {
@@ -327,7 +325,8 @@ nav {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background 0.3s ease; /* Smooth color change on hover */
+    transition: background 0.3s ease;
+    
 }
 .form-container input[type="submit"]:hover, input[type="button"]:hover, button[type="submit"]:hover {
   background-color: var(--muted-text);
@@ -365,42 +364,42 @@ nav {
     margin-top: 1.5rem;
     max-width: 300px;
     font-size: 1rem;
-    color: var(--moss-green);
+    color: var(--accent);
 }
 
 .footer-links h3 {
     font-size: 2rem;
-    color: var(--deep-forrest);
+    color: var(--muted-text);
     margin-bottom: 1rem;
 }
 
 .footer-links a {
     display: block;
     font-size: 1rem;
-    color: var(--moss-green);
+    color: var(--accent);
     margin-bottom: 0.5rem;
     transition: color 0.15s ease;
 }
 
 .footer-links a:hover {
-    color: var(--muted-copper);
+    color: var(--muted-text);
 }
 
 .footer-contact h3 {
     font-size: 2rem;
-    color: var(--deep-forrest);
+    color: var(--muted-text);
     margin-bottom: 1rem;
 }
 
 .footer-contact p {
     font-size: 1rem;
-    color: var(--moss-green);
+    color: var(--accent);
     margin-bottom: 0.5rem;
 }
 
 .copyright {
     font-size: 1rem;
-    color: var(--deep-forrest);
+    color: var(--accent);
     text-align: center;
     margin-top: 3rem;
     margin-bottom: 3rem;
