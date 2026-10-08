@@ -13,15 +13,15 @@
   --text: #f2f2f2;
   --muted-text: #9a9a9a;
   --accent: #d4a373;
-  --font-body: 'Playfair Display', sans-serif;
-  --font-family: 'Inter', sans-serif;
+  --font-family-headings: 'Playfair Display', serif;
+  --font-family-text: 'Inter', sans-serif;
   --font-size: 18px
   --line-height: 1.6;
 }
 
 /*base*/
 body {
-  font-family: var(--font-body);
+  font-family: var(--font-family-headings);
   background: var(--background);
   color: var(--muted-text);
   line-height: var(--line-height);
@@ -77,9 +77,10 @@ nav {
 
 .nav-links a {
   font-size: 18px;
-  color: var(--deep-forrest);
+  color: var(--accent);
   font-weight: 600;
   transition: color 0.15s ease;
+  font-family: var(--font-family-text);
 }
 
 .nav-links a:hover {
@@ -102,6 +103,7 @@ nav {
     margin-top: 5rem;
     font-weight: 600;
     text-align: center;
+    font-family: var(--font-family-text);
 }
 
 .hero h1 {
@@ -121,7 +123,7 @@ nav {
 
 .about-section {
     display: flex;
-    gap: 10px;
+    gap: 50px;
     width: 100%;
     max-width: 1100px;
     padding-bottom: 3rem;
@@ -137,20 +139,11 @@ nav {
     height: auto;
     display: block;
     border-radius: 20px;
-}
-
-.about-text h2 {
-    font-size: 32px;
-    margin-bottom: 15px;
+    border: 2px solid var(--muted-text);
 }
 
 .about-content h2 span {
     color: var(--muted-text)
-}
-
-.about-text p {
-    font-size: 18px;
-    line-height: 1.6;
 }
 
 .about-content {
@@ -161,12 +154,16 @@ nav {
     font-size: 36px;
     margin-bottom: 10px;
     color: var(--text);
+    text-align: center;
 }
 
 .about-content p {
     font-size: 18px;
     line-height: 1.6;
     padding-left: 5rem;
+    font-family: var(--font-family-text);
+    color: var(--text);
+    text-align: center;
 }
 
 .book {
@@ -187,28 +184,6 @@ nav {
     color: var(--muted-text);
 }
 
-.book p {
-    font-size: 18px;
-    line-height: 1.6
-    color: var(var(--text));
-    margin-bottom: 1rem;
-}
-
-.btn {
-    display: inline-block;
-    margin-top: 0.5rem;
-    padding: 1rem 3rem;
-    font-size: 0.8rem;
-    letter-spacing: 0.15rem;
-    text-transform: uppercase;
-    background: var(--accent);
-    color: var(--text);
-    font-weight: 600;
-    border-radius: 999px;
-    transition: transform 0.15s ease;
-    margin-bottom: 2rem;
-}
-
 .product-grid {
     display: grid;
     grid-template-columns: repeat(3, 3fr);
@@ -216,12 +191,15 @@ nav {
 }
 
 .product-card {
-    border: 1px solid var(--muted-text);
+    border: 2px solid var(--muted-text);
     border-radius: 2rem;
     margin-bottom: 1rem;
     overflow: hidden;
     text-align: center;
-    transition: box-shadow 0.15s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
 }
 
 .product-image {
@@ -233,15 +211,17 @@ nav {
 .product-card h3 {
     font-size: 2rem;
     font-weight: 600;
-    color: var(--muted-text);
+    color: var(--text);
     margin: 1rem 1rem 0.25rem;
 }
 
 .product-card .category {
     font-size: 1rem;
-    color: var(--muted-text);
+    color: var(--accent);
     margin-bottom: 1rem;
     font-weight: 600;
+    font-family: var(--font-family-text);
+    text-transform: uppercase;
 }
 
 /*Form*/
@@ -264,17 +244,22 @@ nav {
     color: var(--muted-text);
 }
 
+.form-container p {
+    color: var(--text);
+    font-family: var(--font-family-text);
+    text-align: center;
+}
+
 .form-container label {
-    font-family: var(--font-body);
+    font-family: var(--font-family-text);
     font-family: 'Inter', sans-serif;
     font-size: 20px;
     font-weight: bold;
-    color: var(--muted-text);
+    color: var(--text);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 10px;
     margin-top: 10px;
-    text-align: center;
 }
 
 .form-container input {
@@ -296,6 +281,7 @@ nav {
     color: var(--background);
     font-style: italic;
     padding: 10px;
+    font-family: var(--font-family-text);
 }
 
 .custom-dropdown {
@@ -313,7 +299,7 @@ nav {
   border: 2px solid var(--background);
   border-radius: 6px;
   cursor: pointer;
-  font-style: italic
+  font-family: var(--font-family-text);
 }
 
 .form-container button input[type="submit"], input[type="button"], button[type="submit"] {
@@ -326,7 +312,6 @@ nav {
     border-radius: 4px;
     cursor: pointer;
     transition: background 0.3s ease;
-    
 }
 .form-container input[type="submit"]:hover, input[type="button"]:hover, button[type="submit"]:hover {
   background-color: var(--muted-text);
@@ -365,6 +350,7 @@ nav {
     max-width: 300px;
     font-size: 1rem;
     color: var(--accent);
+    font-family: var(--font-family-text);
 }
 
 .footer-links h3 {
@@ -379,6 +365,7 @@ nav {
     color: var(--accent);
     margin-bottom: 0.5rem;
     transition: color 0.15s ease;
+    font-family: var(--font-family-text);
 }
 
 .footer-links a:hover {
@@ -395,6 +382,7 @@ nav {
     font-size: 1rem;
     color: var(--accent);
     margin-bottom: 0.5rem;
+    font-family: var(--font-family-text);
 }
 
 .copyright {
