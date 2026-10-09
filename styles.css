@@ -139,7 +139,7 @@ nav {
     height: auto;
     display: block;
     border-radius: 20px;
-    border: 2px solid var(--muted-text);
+    border: 2px solid var(--accent);
 }
 
 .about-content h2 span {
@@ -193,7 +193,7 @@ nav {
 }
 
 .product-card {
-    border: 2px solid var(--muted-text);
+    border: 2px solid var(--accent);
     border-radius: 2rem;
     margin-bottom: 1rem;
     overflow: hidden;
