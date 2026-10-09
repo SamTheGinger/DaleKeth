@@ -87,7 +87,7 @@ nav {
   color: var(--muted-text);
 }
 
-/*hero*/
+/*Hero*/
 .hero {
     max-width: 1100px;
     margin: 0 auto;
@@ -165,6 +165,8 @@ nav {
     color: var(--text);
     text-align: center;
 }
+
+/*Book*/
 
 .book {
     max-width: 1100px;
