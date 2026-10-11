@@ -5,16 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aurora Photography - Capturing Beauty</title>
     <link rel="stylesheet" href="styles.css">
+    <noscript>
+        <style>
+            @media (max-width: 900px) {
+                .nav-links { display: flex !important; position: static !important; flex-wrap: wrap !important; gap: 0.4rem 0.85rem !important; padding: 0 0 0.5rem !important; border-bottom: 0 !important; }
+                .nav-links li { border-top: 0 !important; }
+                .nav-links a { padding: 0.25rem 0 !important; font-size: 0.85rem !important; }
+                .nav-toggle { display: none !important; }
+            }
+        </style>
+    </noscript>
 </head>
 <body>
     <header>
         <nav>
-            <a href="#" class="logo">Aurora<span>Photography.</span></a>
-            <ul class="nav-links">
+            <a href="#hero" class="logo">Aurora<span>Photography.</span></a>
+            <button
+                type="button"
+                class="nav-toggle"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="primary-navigation"
+            >
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </button>
+            <ul class="nav-links" id="primary-navigation">
                 <li><a href="#hero">Home</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#book">Book</a></li>
-                <li><a href="#contact">Contact</a></li>                 
+                <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -24,10 +46,8 @@
         <h1>Capturing <span>Beauty.</span></h1>
     </section>
     <section id="portfolio" class="portfolio">
-        <br><br>
-        <br><br>
         <h2>Explore My <span>Portfolio.</span></h2>
-                <div class="product-grid">
+        <div class="product-grid">
             <article class="product-card">
                 <img src="Images/Portraits/D3/1.png" alt="Copper" class="product-image">
                 <div>
@@ -73,7 +93,6 @@
                 <p class="category">Portrait</p>
             </article>
         </div>
-        <div>
         <div class="product-grid">
             <article class="product-card">
                 <img src="Images/Portraits/D3/7.png" alt="Flesh" class="product-image">
@@ -97,7 +116,6 @@
                 <p class="category">Portrait</p>
             </article>
         </div>
-        <div>
         <div class="product-grid">
             <article class="product-card">
                 <img src="Images/Portraits/D3/10.png" alt="Tranquility" class="product-image">
@@ -121,52 +139,42 @@
                 <p class="category">Landscape</p>
             </article>
         </div>
-        <br><br>
-        <br><br>
-<section id="about" class="about-section">
-<div class="about-content">
-    <h2>The Woman <span>Behind The Lens</span></h2>
-    <p>Aurora captures the beauty found in both people and places, creating striking portraits and timeless landscape imagery. From expressive models to the quiet wonder of everyday surroundings, every photograph tells a story through light, emotion, and perspective.</p>
-</div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="about-content">
+            <h2>The Woman <span>Behind The Lens</span></h2>
+            <p>Aurora captures the beauty found in both people and places, creating striking portraits and timeless landscape imagery. From expressive models to the quiet wonder of everyday surroundings, every photograph tells a story through light, emotion, and perspective.</p>
+        </div>
         <div class="about-image">
             <img src="Images/Portraits/D3/Aurora.png" alt="The Photographer">
         </div>
-        <br><br>
-        <br><br>
-        <br><br>
     </section>
-<section id="book" class="book">
-    <br><br>
+
+    <section id="book" class="book">
         <h1>Book Your <span>Photoshoot.</span></h1>
-        <br><br>
         <p>Your moment deserves to be remembered. Book your Aurora session so we can turn it into something timeless.</p>
-        <br><br>
         <form>
-    <label for="name">Name:</label>
-    <br><br>
-    <input type="text" id="name" name="name" placeholder="Enter your name" required>
-    <br><br>
-    <label for="email">Email:</label>
-    <br><br>
-    <input type="email" id="email" name="email" placeholder="Enter your email" required>
-    <br><br>
-    <label for="number">Cellphone Number:</label>
-    <br><br>
-    <input type="tel" id="number" name="number" placeholder="Enter your phone number" required>
-    <br><br>
-    <label for="photoshoot-style">Photoshoot Style:</label>
-    <br><br>
-    <div class="custom-dropdown">
-    <select id="photoshoot-style" name="photoshoot-style" required>
-        <option value="">Select a style</option>
-        <option value="landscape">Landscape</option>
-        <option value="portrait">Portrait</option>
-    </select>
-</div>
-    <br><br>
-    <br><br>
-    <button type="submit">Book Your Photoshoot</button>
-</form>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+            <label for="number">Cellphone Number:</label>
+            <input type="tel" id="number" name="number" placeholder="Enter your phone number" required>
+
+            <label for="photoshoot-style">Photoshoot Style:</label>
+            <div class="custom-dropdown">
+                <select id="photoshoot-style" name="photoshoot-style" required>
+                    <option value="">Select a style</option>
+                    <option value="landscape">Landscape</option>
+                    <option value="portrait">Portrait</option>
+                </select>
+            </div>
+
+            <button type="submit">Book Your Photoshoot</button>
+        </form>
     </section>
 </main>
 <footer id="contact" class="footer">
@@ -179,6 +187,7 @@
             <h3>Explore.</h3>
             <ul> 
                 <li><a href="#hero">Home</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#book">Book</a></li>
             </ul>
@@ -191,5 +200,6 @@
     </div>
     <p class="copyright">&copy; 2026 Dale Keth. Built by Sam Collins.</p>
 </footer>
+<script src="nav.js"></script>
 </body>
 </html>
