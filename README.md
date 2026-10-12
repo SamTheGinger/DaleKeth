@@ -49,4 +49,4 @@ Open `index.html` in a browser, or use a local server:
 
 ## Credits
 
-© 2026 Dale Keth. Built by Sam Collins.
+© 2026 Aurora Photography. Built by Sam Collins.
