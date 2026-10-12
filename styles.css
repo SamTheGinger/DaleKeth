@@ -1,12 +1,11 @@
-/*Reset and Box Model*/
-
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/*Design tokens*/
+/* Design tokens */
 :root {
   --header-offset: 6rem;
   --gap-page: clamp(1rem, 4vw, 1.5rem);
@@ -18,18 +17,16 @@
   --accent: #d4a373;
   --font-family-headings: 'Playfair Display', serif;
   --font-family-text: 'Inter', sans-serif;
-  --font-size: 1rem;
   --line-height: 1.6;
 }
 
-/*base*/
+/* Base */
 html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--header-offset);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  /* Hard guarantee: nothing may ever scroll the page sideways. */
-  overflow-x: hidden;
+  overflow-x: hidden; /* never scroll the page sideways */
 }
 
 body {
@@ -45,6 +42,10 @@ a {
   text-decoration: none;
 }
 
+ul {
+  list-style: none;
+}
+
 img,
 svg,
 video,
@@ -54,12 +55,11 @@ iframe {
 }
 
 img {
-  max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* Flex/grid children default to min-width:auto, which lets long content
+/* Flex/grid children default to min-width: auto, which lets long content
    push a layout wider than its parent. Reset it on every track/item. */
 .nav-links,
 .nav-links li,
@@ -76,11 +76,7 @@ img {
   min-width: 0;
 }
 
-ul {
-  list-style: none;
-}
-
-/*Header*/
+/* Header */
 header {
   position: sticky;
   top: 0;
@@ -98,7 +94,7 @@ nav {
   align-items: center;
   gap: 0.75rem 1.5rem;
   padding: 1rem var(--gap-page);
-  color: var(--accent)
+  color: var(--accent);
 }
 
 .logo {
@@ -112,7 +108,7 @@ nav {
   color: var(--muted-text);
 }
 
-/* Hamburger button — hidden until the collapsed layout kicks in */
+/* Hamburger button: hidden until the collapsed layout kicks in */
 .nav-toggle {
   display: none;
   flex-direction: column;
@@ -145,6 +141,7 @@ nav {
   transition: transform 0.25s ease, opacity 0.15s ease;
 }
 
+/* When open, the three bars turn into an X */
 .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
   transform: translateY(8px) rotate(45deg);
 }
@@ -165,184 +162,174 @@ nav {
 }
 
 .nav-links a {
-  font-size: clamp(0.8rem, 2.2vw, 1.125rem);
-  white-space: nowrap;
   display: inline-block;
   padding: 0.25rem 0;
-  color: var(--accent);
-  font-weight: 600;
-  transition: color 0.15s ease;
   font-family: var(--font-family-text);
+  font-size: clamp(0.8rem, 2.2vw, 1.125rem);
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--accent);
+  transition: color 0.15s ease;
 }
 
 .nav-links a:hover {
   color: var(--muted-text);
 }
 
-/*Hero*/
+/* Hero */
 .hero {
-    background-image:
-    linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)), url("Images/Portraits/D3/Header-Image.png");   
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    min-height: 600px;
-    height: auto;
-    padding: clamp(2rem, 8vw, 4rem) 1.25rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    text-align: center;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    url("Images/Portraits/D3/Header-Image.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 600px;
+  padding: clamp(2rem, 8vw, 4rem) 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--text);
+  text-align: center;
 }
 
 .eyebrow {
-    font-size: 18px;
-    letter-spacing: 0.15rem;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1rem;
-    margin-top: clamp(1rem, 6vw, 5rem);
-    font-weight: 600;
-    text-align: center;
-    font-family: var(--font-family-text);
+  font-family: var(--font-family-text);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.15rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: clamp(1rem, 6vw, 5rem);
+  margin-bottom: 1rem;
 }
 
 .hero h1 {
-    font-size: clamp(2rem, 9vw, 3.75rem);
-    color: var(--text);
-    margin-bottom: 1rem;
-    max-width: 1100px;
-    width: 100%;
-    line-height: 1.2;
-    text-align: center;
+  font-size: clamp(2rem, 9vw, 3.75rem);
+  line-height: 1.2;
+  color: var(--text);
+  max-width: 1100px;
+  width: 100%;
+  margin-bottom: 1rem;
 }
 
 .hero h1 span {
-    color: var(--muted-text);
+  color: var(--muted-text);
 }
 
-/*About*/
-
-.about-section {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: clamp(1.5rem, 5vw, 50px);
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 3rem var(--gap-page);
-}
-
-.about-image {
-    flex: 0 1 30%;
-    max-width: 340px;
-    margin: 0 auto;
-}
-
-.about-image:hover {
-    transform: translateY(-8px);
-}
-
-.about-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 20px;
-    border: 2px solid var(--accent);
-}
-
-.about-content {
-    flex: 1 1 60%;
-    min-width: 0;
-}
-
-.about-content h2 {
-    font-size: clamp(1.5rem, 5vw, 2.25rem);
-    margin-bottom: 10px;
-    color: var(--text);
-    text-align: center;
-}
-
-.about-content h2 span {
-    color: var(--muted-text)
-}
-
-.about-content p {
-    font-size: clamp(1rem, 2.6vw, 1.125rem);
-    line-height: 1.6;
-    padding-inline: clamp(0rem, 6vw, 5rem);
-    font-family: var(--font-family-text);
-    color: var(--text);
-    text-align: center;
-}
-
-/*Portfolio*/
-
+/* Portfolio */
 .portfolio {
-    width: 100%;
-    max-width: 1100px;
-    margin: 1.5rem auto 3rem;
-    padding: 2rem var(--gap-page);
+  width: 100%;
+  max-width: 1100px;
+  margin: 1.5rem auto 3rem;
+  padding: 2rem var(--gap-page);
 }
 
 .portfolio h2 {
-    font-size: clamp(1.5rem, 5vw, 2.25rem);
-    color: var(--text);
-    margin-bottom: clamp(1.5rem, 5vw, 3rem);
-    text-align: center;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  color: var(--text);
+  margin-bottom: clamp(1.5rem, 5vw, 3rem);
+  text-align: center;
 }
 
 .portfolio h2 span {
-    color: var(--muted-text);
+  color: var(--muted-text);
 }
 
 .product-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(0.75rem, 2vw, 1.25rem);
-    margin-bottom: clamp(1rem, 3vw, 2rem);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem) clamp(0.75rem, 2vw, 1.25rem); /* row gap, column gap */
 }
 
 .product-card {
-    border: 2px solid var(--accent);
-    border-radius: var(--radius-card);
-    margin-bottom: 1rem;
-    overflow: hidden;
-    text-align: center;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  text-align: center;
+  transition: transform 0.2s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
+  transform: translateY(-8px);
 }
 
 .product-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
 
 .product-card h3 {
-    font-size: clamp(1.1rem, 4vw, 2rem);
-    font-weight: 600;
-    color: var(--text);
-    margin: 1rem 1rem 0.25rem;
+  font-size: clamp(1.1rem, 4vw, 2rem);
+  font-weight: 600;
+  color: var(--text);
+  margin: 1rem 1rem 0.25rem;
 }
 
 .product-card .category {
-    font-size: clamp(0.8rem, 2.4vw, 1rem);
-    color: var(--accent);
-    margin-bottom: 1rem;
-    font-weight: 600;
-    font-family: var(--font-family-text);
-    text-transform: uppercase;
+  font-family: var(--font-family-text);
+  font-size: clamp(0.8rem, 2.4vw, 1rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
 }
 
-/*Book*/
+/* About */
+.about-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 50px);
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem var(--gap-page);
+}
 
+.about-image {
+  flex: 0 1 30%;
+  max-width: 340px;
+  margin: 0 auto;
+  transition: transform 0.2s ease;
+}
+
+.about-image:hover {
+  transform: translateY(-8px);
+}
+
+.about-image img {
+  width: 100%;
+  border-radius: 20px;
+  border: 2px solid var(--accent);
+}
+
+.about-content {
+  flex: 1 1 60%;
+}
+
+.about-content h2 {
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  color: var(--text);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.about-content h2 span {
+  color: var(--muted-text);
+}
+
+.about-content p {
+  font-family: var(--font-family-text);
+  font-size: clamp(1rem, 2.6vw, 1.125rem);
+  color: var(--text);
+  text-align: center;
+  padding-inline: clamp(0rem, 6vw, 5rem);
+}
+
+/* Book */
 .book {
   width: 100%;
   max-width: 560px;
@@ -353,176 +340,152 @@ nav {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.book h1 {
-    font-size: clamp(1.5rem, 6vw, 2rem);
-    color: var(--text);
-    text-align: center;
-    margin-bottom: 0.5rem;
+.book h2 {
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
-.book h1 span {
-    color: var(--muted-text);
+.book h2 span {
+  color: var(--muted-text);
 }
 
 .book p {
-    color: var(--text);
-    font-family: var(--font-family-text);
-    text-align: center;
-    margin-bottom: 1rem;
+  font-family: var(--font-family-text);
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 .book label {
-    display: block;
-    font-family: 'Inter', sans-serif;
-    font-size: clamp(0.9rem, 2.6vw, 1.25rem);
-    font-weight: bold;
-    color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
-    margin-top: 1.5rem;
+  display: block;
+  font-family: var(--font-family-text);
+  font-size: clamp(0.9rem, 2.6vw, 1.25rem);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .book input {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    font-family: inherit;
-    font-size: 16px;
-    color: var(--background);
-    padding: clamp(0.75rem, 3vw, 1.25rem) 12px;
-    margin-bottom: 0;
-    background-color: var(--text);
-    border: 3px solid var(--background);
-    border-radius: 10px;
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  font-family: var(--font-family-text);
+  font-size: 16px; /* 16px stops iPhones zooming in on focus */
+  color: var(--background);
+  background-color: var(--text);
+  padding: clamp(0.75rem, 3vw, 1.25rem) 12px;
+  border: 3px solid var(--background);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.3s ease;
 }
 
 .book input::placeholder {
-    color: var(--background);
-    font-style: italic;
-    padding: 10px;
-    font-family: var(--font-family-text);
-}
-
-.custom-dropdown {
-    position: relative;
-    display: block;
-    width: 100%;
-    max-width: 100%;
+  color: var(--background);
+  font-style: italic;
 }
 
 .custom-dropdown select {
   width: 100%;
-  padding: 12px 40px 12px 16px;
+  font-family: var(--font-family-text);
   font-size: 16px;
   color: var(--background);
   background-color: var(--text);
+  padding: 12px 40px 12px 16px;
   border: 2px solid var(--background);
   border-radius: 6px;
   cursor: pointer;
-  font-family: var(--font-family-text);
 }
 
-.book button,
-.book input[type="submit"],
-.book input[type="button"] {
-    width: 100%;
-    margin-top: 2rem;
-    background-color: var(--accent);
-    color: var(--background);
-    font-size: 18px;
-    font-weight: bold;
-    padding: 16px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s ease;
+/* Visible focus ring so keyboard users can see which field is active */
+.book input:focus,
+.custom-dropdown select:focus {
+  border-color: var(--accent);
 }
 
-.book button:hover,
-.book input[type="submit"]:hover,
-.book input[type="button"]:hover {
+.book button {
+  width: 100%;
+  margin-top: 2rem;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--background);
+  background-color: var(--accent);
+  padding: 16px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.book button:hover {
   background-color: var(--muted-text);
 }
 
-.book button:active,
-.book input[type="submit"]:active,
-.book input[type="button"]:active {
+.book button:active {
   transform: scale(0.98);
 }
 
-/*Footer*/
+/* Footer */
 .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: clamp(1.25rem, 4vw, 2rem);
-    align-items: start;
-    padding: 2rem clamp(1rem, 6vw, 5rem);
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: clamp(1.25rem, 4vw, 2rem);
+  align-items: start;
+  padding: 2rem clamp(1rem, 6vw, 5rem);
 }
 
 .footer-logo {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--text);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .footer-logo span {
-    color: var(--muted-text);
-}
-
-.footer-logo p {
-    font-size: 1rem;
-    margin-bottom: 1rem;
+  color: var(--muted-text);
 }
 
 .footer-brand p:last-child {
-    margin-top: 1.5rem;
-    max-width: 300px;
-    font-size: 1rem;
-    color: var(--accent);
-    font-family: var(--font-family-text);
+  font-family: var(--font-family-text);
+  font-size: 1rem;
+  color: var(--accent);
+  max-width: 300px;
+  margin-top: 1.5rem;
 }
 
-.footer-links h3 {
-    font-size: 2rem;
-    color: var(--muted-text);
-    margin-bottom: 1rem;
-}
-
-.footer-links a {
-    display: block;
-    font-size: 1rem;
-    color: var(--accent);
-    margin-bottom: 0.5rem;
-    transition: color 0.15s ease;
-    font-family: var(--font-family-text);
-}
-
-.footer-links a:hover {
-    color: var(--muted-text);
-}
-
+.footer-links h3,
 .footer-contact h3 {
-    font-size: 2rem;
-    color: var(--muted-text);
-    margin-bottom: 1rem;
+  font-size: 2rem;
+  color: var(--muted-text);
+  margin-bottom: 1rem;
 }
 
+.footer-links a,
 .footer-contact p {
-    font-size: 1rem;
-    color: var(--accent);
-    margin-bottom: 0.5rem;
-    font-family: var(--font-family-text);
+  display: block;
+  font-family: var(--font-family-text);
+  font-size: 1rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.footer-links a,
+.footer-contact a {
+  transition: color 0.15s ease;
+}
+
+.footer-links a:hover,
+.footer-contact a:hover {
+  color: var(--muted-text);
 }
 
 .copyright {
-    font-size: 1rem;
-    color: var(--accent);
-    text-align: center;
-    margin-top: 3rem;
-    margin-bottom: 3rem;
+  font-size: 1rem;
+  color: var(--accent);
+  text-align: center;
+  margin: 3rem 0;
 }
 
 /* ============================================================
@@ -546,15 +509,13 @@ nav {
 
   nav {
     position: relative;
-    justify-content: space-between;
-    text-align: left;
   }
 
   .nav-toggle {
     display: flex;
   }
 
-  /* Collapsed menu panel, anchored to the header */
+  /* Collapsed menu panel, anchored under the header */
   .nav-links {
     position: absolute;
     top: 100%;
@@ -628,6 +589,7 @@ nav {
     margin: 0 0.5rem 0.5rem;
   }
 }
+
 /* Phones */
 @media (max-width: 640px) {
   :root {
@@ -647,32 +609,27 @@ nav {
     letter-spacing: 0.1rem;
   }
 
-  .about-image img {
-    border-radius: 14px;
+  .portfolio {
+    padding: 1.5rem 1rem;
+  }
+
+  /* One card per row */
+  .product-grid {
+    grid-template-columns: 1fr;
+    max-width: 26rem;
+    margin-inline: auto;
+  }
+
+  .product-card h3 {
+    margin: 0.75rem 0.5rem 0.25rem;
   }
 
   .about-section {
     padding: 2rem 1rem;
   }
 
-  .portfolio {
-    padding: 1.5rem 1rem;
-  }
-
-  /* Phones: one product card per row */
-  .product-grid {
-    grid-template-columns: 1fr;
-    width: 100%;
-    max-width: 26rem;
-    margin-inline: auto;
-  }
-
-  .product-card {
-    margin-bottom: 0;
-  }
-
-  .product-card h3 {
-    margin: 0.75rem 0.5rem 0.25rem;
+  .about-image img {
+    border-radius: 14px;
   }
 
   .book {
@@ -680,13 +637,13 @@ nav {
     margin: 1.5rem auto;
   }
 
-  .book h1 {
+  .book h2 {
     font-size: clamp(1.5rem, 7vw, 2rem);
   }
 
   .book label {
-    margin-bottom: 0.4rem;
     margin-top: 1rem;
+    margin-bottom: 0.4rem;
   }
 
   .custom-dropdown select {
@@ -696,14 +653,12 @@ nav {
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
-    text-align: center;
     padding: 2rem 1.25rem;
   }
 
   .copyright {
     padding-inline: 1rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin: 2rem 0;
   }
 }
 

@@ -1,205 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aurora Photography - Capturing Beauty</title>
-    <link rel="stylesheet" href="styles.css">
-    <noscript>
-        <style>
-            @media (max-width: 900px) {
-                .nav-links { display: flex !important; position: static !important; flex-wrap: wrap !important; gap: 0.4rem 0.85rem !important; padding: 0 0 0.5rem !important; border-bottom: 0 !important; }
-                .nav-links li { border-top: 0 !important; }
-                .nav-links a { padding: 0.25rem 0 !important; font-size: 0.85rem !important; }
-                .nav-toggle { display: none !important; }
-            }
-        </style>
-    </noscript>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aurora Photography: portrait and landscape photographer based in Durban, South Africa.">
+  <title>Aurora Photography - Capturing Beauty</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Without JavaScript the hamburger can't open, so show the links instead. -->
+  <noscript>
+    <style>
+      @media (max-width: 900px) {
+        .nav-links {
+          display: flex !important;
+          position: static !important;
+          flex-direction: row !important;
+          flex-wrap: wrap !important;
+          gap: 0.4rem 0.85rem !important;
+          padding: 0 0 0.5rem !important;
+          border-bottom: 0 !important;
+        }
+        .nav-links li { border-top: 0 !important; }
+        .nav-links a { padding: 0.25rem 0 !important; font-size: 0.85rem !important; }
+        .nav-toggle { display: none !important; }
+      }
+    </style>
+  </noscript>
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="#hero" class="logo">Aurora<span>Photography.</span></a>
-            <button
-                type="button"
-                class="nav-toggle"
-                aria-label="Open navigation menu"
-                aria-expanded="false"
-                aria-controls="primary-navigation"
-            >
-                <span class="nav-toggle-bar"></span>
-                <span class="nav-toggle-bar"></span>
-                <span class="nav-toggle-bar"></span>
-            </button>
-            <ul class="nav-links" id="primary-navigation">
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#portfolio">Portfolio</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#book">Book</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-<main>
+  <header>
+    <nav>
+      <a href="#hero" class="logo">Aurora<span>Photography.</span></a>
+      <button type="button" class="nav-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primary-navigation">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <ul class="nav-links" id="primary-navigation">
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#portfolio">Portfolio</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#book">Book</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
     <section id="hero" class="hero">
-        <p class="eyebrow">Portrait and Landscape Photographer</p>
-        <h1>Capturing <span>Beauty.</span></h1>
+      <p class="eyebrow">Portrait and Landscape Photographer</p>
+      <h1>Capturing <span>Beauty.</span></h1>
     </section>
+
     <section id="portfolio" class="portfolio">
-        <h2>Explore My <span>Portfolio.</span></h2>
-        <div class="product-grid">
-            <article class="product-card">
-                <img src="Images/Portraits/D3/1.png" alt="Copper" class="product-image">
-                <div>
-                    <h3>Copper</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-             <article class="product-card">
-                <img src="Images/Portraits/D3/2.png" alt="Ivory" class="product-image">
-                <div>
-                    <h3>Ivory</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-             <article class="product-card">
-                <img src="Images/Portraits/D3/3.png" alt="Ebony" class="product-image">
-                <div>
-                    <h3>Ebony</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-        </div>
-        <div class="product-grid">
-            <article class="product-card">
-                <img src="Images/Portraits/D3/4.png" alt="Strength" class="product-image">
-                <div>
-                    <h3>Strength</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-             <article class="product-card">
-                <img src="Images/Portraits/D3/5.png" alt="Vigor" class="product-image">
-                <div>
-                    <h3>Vigor</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-             <article class="product-card">
-                <img src="Images/Portraits/D3/6.png" alt="Brawn" class="product-image">
-                <div>
-                    <h3>Brawn</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-        </div>
-        <div class="product-grid">
-            <article class="product-card">
-                <img src="Images/Portraits/D3/7.png" alt="Flesh" class="product-image">
-                <div>
-                    <h3>Flesh</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-            <article class="product-card">
-                <img src="Images/Portraits/D3/8.png" alt="Fashion" class="product-image">
-                <div>
-                    <h3>Fashion</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-             <article class="product-card">
-                <img src="Images/Portraits/D3/9.png" alt="Bronze" class="product-image">
-                <div>
-                    <h3>Bronze</h3>
-                </div>
-                <p class="category">Portrait</p>
-            </article>
-        </div>
-        <div class="product-grid">
-            <article class="product-card">
-                <img src="Images/Portraits/D3/10.png" alt="Tranquility" class="product-image">
-                <div>
-                    <h3>Tranquility</h3>
-                </div>
-                <p class="category">Landscape</p>
-            </article>
-            <article class="product-card">
-                <img src="Images/Portraits/D3/11.png" alt="Serenity" class="product-image">
-                <div>
-                    <h3>Serenity</h3>
-                </div>
-                <p class="category">Landscape</p>
-            </article>
-             <article class="product-card">
-                <img src="Images/Portraits/D3/12.png" alt="Peace" class="product-image">
-                <div>
-                    <h3>Peace</h3>
-                </div>
-                <p class="category">Landscape</p>
-            </article>
-        </div>
+      <h2>Explore My <span>Portfolio.</span></h2>
+      <div class="product-grid">
+        <article class="product-card">
+          <img src="Images/Portraits/D3/1.png" alt="Copper" class="product-image">
+          <h3>Copper</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/2.png" alt="Ivory" class="product-image">
+          <h3>Ivory</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/3.png" alt="Ebony" class="product-image">
+          <h3>Ebony</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/4.png" alt="Strength" class="product-image">
+          <h3>Strength</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/5.png" alt="Vigor" class="product-image">
+          <h3>Vigor</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/6.png" alt="Brawn" class="product-image">
+          <h3>Brawn</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/7.png" alt="Flesh" class="product-image">
+          <h3>Flesh</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/8.png" alt="Fashion" class="product-image">
+          <h3>Fashion</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/9.png" alt="Bronze" class="product-image">
+          <h3>Bronze</h3>
+          <p class="category">Portrait</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/10.png" alt="Tranquility" class="product-image">
+          <h3>Tranquility</h3>
+          <p class="category">Landscape</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/11.png" alt="Serenity" class="product-image">
+          <h3>Serenity</h3>
+          <p class="category">Landscape</p>
+        </article>
+        <article class="product-card">
+          <img src="Images/Portraits/D3/12.png" alt="Peace" class="product-image">
+          <h3>Peace</h3>
+          <p class="category">Landscape</p>
+        </article>
+      </div>
     </section>
 
     <section id="about" class="about-section">
-        <div class="about-content">
-            <h2>The Woman <span>Behind The Lens</span></h2>
-            <p>Aurora captures the beauty found in both people and places, creating striking portraits and timeless landscape imagery. From expressive models to the quiet wonder of everyday surroundings, every photograph tells a story through light, emotion, and perspective.</p>
-        </div>
-        <div class="about-image">
-            <img src="Images/Portraits/D3/Aurora.png" alt="The Photographer">
-        </div>
+      <div class="about-content">
+        <h2>The Woman <span>Behind The Lens</span></h2>
+        <p>Aurora captures the beauty found in both people and places, creating striking portraits and timeless landscape imagery. From expressive models to the quiet wonder of everyday surroundings, every photograph tells a story through light, emotion, and perspective.</p>
+      </div>
+      <div class="about-image">
+        <img src="Images/Portraits/D3/Aurora.png" alt="Aurora, the photographer">
+      </div>
     </section>
 
     <section id="book" class="book">
-        <h1>Book Your <span>Photoshoot.</span></h1>
-        <p>Your moment deserves to be remembered. Book your Aurora session so we can turn it into something timeless.</p>
-        <form>
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+      <h2>Book Your <span>Photoshoot.</span></h2>
+      <p>Your moment deserves to be remembered. Book your Aurora session so we can turn it into something timeless.</p>
+      <form>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" autocomplete="name" required>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="email" required>
 
-            <label for="number">Cellphone Number:</label>
-            <input type="tel" id="number" name="number" placeholder="Enter your phone number" required>
+        <label for="number">Cellphone Number:</label>
+        <input type="tel" id="number" name="number" placeholder="Enter your phone number" autocomplete="tel" required>
 
-            <label for="photoshoot-style">Photoshoot Style:</label>
-            <div class="custom-dropdown">
-                <select id="photoshoot-style" name="photoshoot-style" required>
-                    <option value="">Select a style</option>
-                    <option value="landscape">Landscape</option>
-                    <option value="portrait">Portrait</option>
-                </select>
-            </div>
+        <label for="photoshoot-style">Photoshoot Style:</label>
+        <div class="custom-dropdown">
+          <select id="photoshoot-style" name="photoshoot-style" required>
+            <option value="">Select a style</option>
+            <option value="landscape">Landscape</option>
+            <option value="portrait">Portrait</option>
+          </select>
+        </div>
 
-            <button type="submit">Book Your Photoshoot</button>
-        </form>
+        <button type="submit">Book Your Photoshoot</button>
+      </form>
     </section>
-</main>
-<footer id="contact" class="footer">
+  </main>
+
+  <footer id="contact" class="footer">
     <div class="footer-grid">
-        <div class="footer-brand">
-            <p class="footer-logo">Aurora<span>Photography.</span></p>
-            <p>Capturing Beauty, Telling Stories.</p>
-        </div>
-        <div class="footer-links">
-            <h3>Explore.</h3>
-            <ul> 
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#portfolio">Portfolio</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#book">Book</a></li>
-            </ul>
-        </div>
-        <div class="footer-contact">
-            <h3>Say Hello.</h3>
-            <p>photographer@aurora.com</p>
-            <p>Durban, South Africa</p>
-        </div>
+      <div class="footer-brand">
+        <p class="footer-logo">Aurora<span>Photography.</span></p>
+        <p>Capturing Beauty, Telling Stories.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Explore.</h3>
+        <ul>
+          <li><a href="#hero">Home</a></li>
+          <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#book">Book</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h3>Say Hello.</h3>
+        <p><a href="mailto:photographer@aurora.com">photographer@aurora.com</a></p>
+        <p>Durban, South Africa</p>
+      </div>
     </div>
     <p class="copyright">&copy; 2026 Dale Keth. Built by Sam Collins.</p>
-</footer>
-<script src="nav.js"></script>
+  </footer>
+
+  <script src="nav.js"></script>
 </body>
 </html>

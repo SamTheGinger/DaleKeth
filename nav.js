@@ -1,12 +1,11 @@
 /**
- * Mobile navigation: toggles the collapsed menu panel on phones and tablets.
- * The panel is only collapsible below 900px; above that the links are always
- * visible inline, so any open state is cleared when the viewport grows.
+ * Mobile navigation: opens and closes the menu panel on phones and tablets.
+ * The panel only collapses below 900px; above that the links are always
+ * visible, so the menu is reset to closed when the window grows.
  */
 (function () {
-  var toggleButton = document.querySelector('.nav-toggle');
-  var menu = document.getElementById('primary-navigation');
-  var DESKTOP_QUERY = '(min-width: 901px)';
+  const toggleButton = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('primary-navigation');
 
   if (!toggleButton || !menu) {
     return;
@@ -18,23 +17,23 @@
 
   function setMenuOpen(isOpen) {
     menu.classList.toggle('is-open', isOpen);
-    toggleButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    toggleButton.setAttribute(
-      'aria-label',
-      isOpen ? 'Close navigation menu' : 'Open navigation menu'
-    );
+    toggleButton.setAttribute('aria-expanded', String(isOpen));
+    toggleButton.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
   }
 
+  // Hamburger click: flip between open and closed.
   toggleButton.addEventListener('click', function () {
     setMenuOpen(!isMenuOpen());
   });
 
+  // Picking a link closes the menu so it doesn't cover the section.
   menu.addEventListener('click', function (event) {
     if (event.target.closest('a')) {
       setMenuOpen(false);
     }
   });
 
+  // Escape closes the menu and puts keyboard focus back on the button.
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && isMenuOpen()) {
       setMenuOpen(false);
@@ -42,17 +41,10 @@
     }
   });
 
-  var desktopViewport = window.matchMedia(DESKTOP_QUERY);
-
-  function closeMenuOnDesktop(event) {
+  // Growing the window to desktop width closes the menu.
+  window.matchMedia('(min-width: 901px)').addEventListener('change', function (event) {
     if (event.matches) {
       setMenuOpen(false);
     }
-  }
-
-  if (typeof desktopViewport.addEventListener === 'function') {
-    desktopViewport.addEventListener('change', closeMenuOnDesktop);
-  } else if (typeof desktopViewport.addListener === 'function') {
-    desktopViewport.addListener(closeMenuOnDesktop);
-  }
+  });
 })();
