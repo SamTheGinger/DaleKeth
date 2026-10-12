@@ -3,7 +3,7 @@ Website assignment for Mayerfeld Frontend Developer Practicum - photography or a
 ## Status
 Week 1 Statis HTML/CSS landing page
 
-/*Index.html*/
+# Index
 
 Project: Portfolio / Personal site (inferred) Description: A responsive, dark-themed portfolio or personal landing page. Styles use CSS design tokens (variables) for color, spacing and typography; the header is sticky with a collapsible mobile nav and a large hero image. The stylesheet references Images/Portraits/D3/Header-Image.png for the hero background and includes layout sections such as .about-section, .portfolio (.product-grid / .product-card) and .book (form controls).
 
@@ -67,7 +67,7 @@ License (MIT, etc.)
 Contribution guidelines
 Build steps if you add tooling (npm, Tailwind, bundlers)
 
-Styles:
+# Styles:
 
 A responsive, dark-themed portfolio landing page for "Aurora Photography" (index.html + styles.css). Key features: large hero with gradient overlay, sticky header with a collapsible mobile nav, a multi-row portfolio grid, an about section, and a booking form.
 Evidence (from your files)
