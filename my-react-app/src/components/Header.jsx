@@ -44,7 +44,7 @@ function Header() {
           relative = the phone menu (absolute, below) is positioned against this box.
           flex + items-center + justify-between = logo on the left, button/links on the right, vertically centred.
           flex-wrap = on desktop, if the links don't fit next to the logo they move to a second row. */}
-      <nav className="relative mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6 sm:py-4">
+      <nav className="relative mx-auto flex max-w-275 flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6 sm:py-4">
         {/* The logo links back to the top of the home page. Text size: text-2xl on phones, sm:text-4xl from 640px, then a little smaller from 900px (md:) so all 7 links fit beside it, and back up to 2.8rem from 1280px (xl:). */}
         <a href="#hero" className="text-2xl leading-tight font-semibold text-text sm:text-4xl md:text-[2rem] lg:text-4xl xl:text-[2.8rem]">
           Aurora<span className="text-muted">Photography.</span>
@@ -62,9 +62,9 @@ function Header() {
         >
           {/* When the menu is open, the top line moves down and turns 45°, the middle line fades out,
               and the bottom line moves up and turns -45°, which turns ☰ into ✕. */}
-          <span className={`${barClasses} ${isMenuOpen ? 'translate-y-[7px] rotate-45' : ''}`} />
+          <span className={`${barClasses} ${isMenuOpen ? 'translate-y-1.75 rotate-45' : ''}`} />
           <span className={`${barClasses} ${isMenuOpen ? 'opacity-0' : ''}`} />
-          <span className={`${barClasses} ${isMenuOpen ? '-translate-y-[7px] -rotate-45' : ''}`} />
+          <span className={`${barClasses} ${isMenuOpen ? '-translate-y-1.75 -rotate-45' : ''}`} />
         </button>
 
         {/* The list of links.

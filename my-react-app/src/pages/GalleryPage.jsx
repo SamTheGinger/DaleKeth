@@ -23,7 +23,7 @@ function GalleryPage({ photo, likedImageIds, onLikeChange }) {
 
   return (
     // The page area: centred, max 1100px wide, with space around it.
-    <section className="mx-auto w-full max-w-[1100px] px-4 py-8 sm:px-6 sm:py-12">
+    <section className="mx-auto w-full max-w-275 px-4 py-8 sm:px-6 sm:py-12">
       {/* "Back" link. #portfolio takes you to the home page and scrolls to the portfolio section.
           &larr; is the HTML code for a left arrow (←). */}
       <a href="#portfolio" className="font-body font-semibold text-accent transition-colors hover:text-muted">
@@ -44,14 +44,14 @@ function GalleryPage({ photo, likedImageIds, onLikeChange }) {
       </div>
 
       {/* The images. Mobile-first: 1 column on phones, 2 from 640px (sm:), 3 from 900px (md:). */}
-      <div className="mx-auto grid max-w-[26rem] grid-cols-1 gap-6 sm:max-w-none sm:grid-cols-2 md:grid-cols-3">
+      <div className="mx-auto grid max-w-104 grid-cols-1 gap-6 sm:max-w-none sm:grid-cols-2 md:grid-cols-3">
         {images.map((image) => (
           // <figure> = an image with something attached to it.
           // relative = lets the heart button be positioned in this figure's corner (see "absolute" below).
           <figure key={image.id} className="relative min-w-0 overflow-hidden rounded-3xl border-2 border-accent">
             {/* loading="lazy" = only download this image when it is about to scroll into view, so the page opens faster.
                 decoding="async" = let the browser unpack the image in the background without freezing the page. */}
-            <img loading="lazy" decoding="async" src={image.src} alt={image.alt} className="aspect-[4/5] w-full object-cover" />
+            <img loading="lazy" decoding="async" src={image.src} alt={image.alt} className="aspect-4/5 w-full object-cover" />
             {/* absolute + right-3 + bottom-3 = pinned 12px from the bottom-right corner of the image. */}
             <div className="absolute right-3 bottom-3">
               <LikeButton

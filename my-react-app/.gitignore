@@ -1,24 +1,85 @@
+# =====================================================================
+# WHAT IS THIS FILE?
+# A .gitignore tells Git which files and folders to IGNORE.
+# Ignored files stay on your computer but are never committed
+# or pushed to GitHub.
+#
+# Quick pattern guide:
+#   name      -> ignore any file OR folder with this exact name
+#   *         -> wildcard, matches "anything" (e.g. *.log = every .log file)
+#   ?         -> matches exactly ONE character
+#   folder/*  -> ignore everything INSIDE this folder
+#   !pattern  -> "un-ignore": make an exception to an earlier rule
+#   # ...     -> a comment (must be at the START of a line)
+# =====================================================================
+
+
+# ---------------------------------------------------------------------
 # Logs
+# Log files are text records programs write while running (errors,
+# debug info). They're generated automatically, change constantly and
+# are only useful on your own machine, so there's no point saving them.
+# ---------------------------------------------------------------------
+
+# A folder called "logs"
 logs
+# Any file ending in .log (e.g. error.log, server.log)
 *.log
+# Crash/debug logs created by npm, yarn, pnpm and lerna (package managers).
+# The * at the end catches variations like npm-debug.log.12345
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+
+# ---------------------------------------------------------------------
+# Dependencies & build output
+# ---------------------------------------------------------------------
+
+# node_modules holds all the packages installed by "npm install"
+# (React, Tailwind, Vite, etc.). It's HUGE (thousands of files) and can
+# be rebuilt at any time from package.json, so we never commit it.
 node_modules
+
+# dist is the finished, optimised website created by "npm run build".
+# It's generated from your source code, so you can always rebuild it.
 dist
+# Same idea, but for server-side-rendered (SSR) builds
 dist-ssr
+
+# Any file ending in .local, e.g. ".env.local". These often contain
+# private settings or secret keys (passwords, API keys) that should
+# NEVER be uploaded to GitHub where others could see them.
 *.local
 
+
+# ---------------------------------------------------------------------
 # Editor directories and files
+# Code editors and operating systems create their own hidden files.
+# They're personal to YOUR setup and just clutter the project for
+# anyone else, so we ignore them.
+# ---------------------------------------------------------------------
+
+# Ignore everything inside the .vscode folder (VS Code settings)...
 .vscode/*
+# ...EXCEPT extensions.json, which recommends useful extensions to
+# anyone who opens the project. The "!" means "don't ignore this one".
 !.vscode/extensions.json
+
+# Settings folder for JetBrains editors (WebStorm, IntelliJ)
 .idea
+
+# Hidden file macOS creates in every folder to remember icon positions
 .DS_Store
+
+# Files created by Microsoft Visual Studio (a different program to VS Code)
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
+
+# Temporary "swap" files the Vim editor makes while you edit.
+# The ? matches one letter, so this catches .swp, .swo, .swn, etc.
 *.sw?

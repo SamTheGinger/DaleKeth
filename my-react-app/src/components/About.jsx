@@ -7,7 +7,7 @@ function About() {
     // items-center = centred across, gap-* = space between text and photo (bigger on bigger screens).
     <section
       id="about"
-      className="mx-auto flex w-full max-w-[1100px] flex-col items-center gap-6 px-4 py-8 text-center sm:gap-10 sm:px-6 sm:py-12 md:flex-row md:gap-[50px]"
+      className="mx-auto flex w-full max-w-275 flex-col items-center gap-6 px-4 py-8 text-center sm:gap-10 sm:px-6 sm:py-12 md:flex-row md:gap-12.5"
     >
       {/* The text. md:flex-[1_1_60%] = on desktop it takes about 60% of the width and can grow or shrink. */}
       <div className="w-full min-w-0 md:flex-[1_1_60%]">
@@ -23,7 +23,7 @@ function About() {
 
       {/* The photo. max-w-[420px] on phones/tablets, max-w-[340px] and about 30% of the width on desktop.
           hover:-translate-y-2 = lifts slightly when the mouse is over it. */}
-      <div className="mx-auto w-full max-w-[420px] min-w-0 transition-transform duration-200 hover:-translate-y-2 md:max-w-[340px] md:flex-[0_1_30%]">
+      <div className="mx-auto w-full max-w-105 min-w-0 transition-transform duration-200 hover:-translate-y-2 md:max-w-85 md:flex-[0_1_30%]">
         <img
           loading="lazy" // Only download this image when it is about to scroll into view, so the page opens faster.
           decoding="async" // Let the browser unpack the image in the background without freezing the page.

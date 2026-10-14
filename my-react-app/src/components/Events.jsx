@@ -6,7 +6,7 @@ import EventCard from './EventCard.jsx' // The card used for each event.
 function Events() {
   return (
     // id="events" is where the menu's "Events" link (#events) jumps to.
-    <section id="events" className="mx-auto mb-12 w-full max-w-[1100px] px-4 py-6 sm:px-6 sm:py-8">
+    <section id="events" className="mx-auto mb-12 w-full max-w-275 px-4 py-6 sm:px-6 sm:py-8">
       <h2 className="mb-3 text-center text-2xl text-text sm:text-3xl md:text-4xl">
         Upcoming <span className="text-muted">Events.</span>
       </h2>

@@ -24,7 +24,7 @@ function ArtworkPage({ artwork }) {
   }
 
   return (
-    <section className="mx-auto w-full max-w-[1100px] px-4 py-8 sm:px-6 sm:py-12">
+    <section className="mx-auto w-full max-w-275 px-4 py-8 sm:px-6 sm:py-12">
       <a href="#shop" className="font-body font-semibold text-accent transition-colors hover:text-muted">
         &larr; Shop
       </a>
@@ -37,7 +37,7 @@ function ArtworkPage({ artwork }) {
           alt={artwork.title}
           // w-full = fills its column, rounded-3xl = rounded corners, md:sticky md:top-28 = on wide screens
           // the image stays in view while you scroll down the details beside it.
-          className="aspect-[4/5] w-full min-w-0 rounded-3xl border-2 border-accent object-cover md:sticky md:top-28"
+          className="aspect-4/5 w-full min-w-0 rounded-3xl border-2 border-accent object-cover md:sticky md:top-28"
         />
 
         <div className="min-w-0">
