@@ -29,6 +29,13 @@
     text-size-adjust: 100%;
   }
 
+  /* Safety net: nothing can ever make the page scroll sideways on any device.
+     clip (not hidden) is used because hidden would stop the sticky header from sticking. */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
   /* From 900px wide, the header is taller, so leave a bit more room above sections. */
   @media (width >= 56.25rem) {
     html {

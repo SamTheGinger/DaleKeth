@@ -21,8 +21,9 @@ function QuantityStepper({ value, onChange, min = 1, max, label }) { // "min = 1
 
   return (
     // role="group" + aria-label tell screen readers these three things belong together.
-    // inline-flex + items-center + gap-4 = the three pieces sit in a row with space between them.
-    <div role="group" aria-label={label} className="inline-flex items-center gap-4">
+    // inline-flex + items-center + gap-3 = the three pieces sit in a row with space between them
+    // (min-[360px]:gap-4 = a little more space once the screen is 360px or wider; tiny phones need the room).
+    <div role="group" aria-label={label} className="inline-flex items-center gap-3 min-[360px]:gap-4">
       <button
         type="button"
         className={buttonClasses}

@@ -45,16 +45,19 @@ function Header() {
           flex + items-center + justify-between = logo on the left, button/links on the right, vertically centred.
           flex-wrap = on desktop, if the links don't fit next to the logo they move to a second row. */}
       <nav className="relative mx-auto flex max-w-275 flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6 sm:py-4">
-        {/* The logo links back to the top of the home page. Text size: text-2xl on phones, sm:text-4xl from 640px, then a little smaller from 900px (md:) so all 7 links fit beside it, and back up to 2.8rem from 1280px (xl:). */}
-        <a href="#hero" className="text-2xl leading-tight font-semibold text-text sm:text-4xl md:text-[2rem] lg:text-4xl xl:text-[2.8rem]">
-          Aurora<span className="text-muted">Photography.</span>
+        {/* The logo links back to the top of the home page. Text size: text-2xl on phones, sm:text-4xl from 640px, then a little smaller from 900px (md:) so all 7 links fit beside it, and back up to 2.8rem from 1280px (xl:).
+            min-w-0 + <wbr /> = on very narrow screens (or with large text turned on) the logo can break onto two lines
+            between "Aurora" and "Photography." instead of sticking out past the edge of the screen. */}
+        <a href="#hero" className="min-w-0 text-2xl leading-tight font-semibold text-text sm:text-4xl md:text-[2rem] lg:text-4xl xl:text-[2.8rem]">
+          Aurora<wbr />
+          <span className="text-muted">Photography.</span>
         </a>
 
         {/* The hamburger button. md:hidden = hidden from 900px up, where the links are always visible.
-            size-11 = 44 × 44px, flex-col + justify-between = the three lines are spread evenly top to bottom. */}
+            size-11 = 44 × 44px, shrink-0 = never squashed by a long logo, flex-col + justify-between = the three lines are spread evenly top to bottom. */}
         <button
           type="button"
-          className="flex size-11 cursor-pointer flex-col justify-between rounded-lg border-2 border-accent px-2.5 py-3 transition-colors hover:bg-accent/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text md:hidden"
+          className="flex size-11 shrink-0 cursor-pointer flex-col justify-between rounded-lg border-2 border-accent px-2.5 py-3 transition-colors hover:bg-accent/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text md:hidden"
           aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'} // What a screen reader says.
           aria-expanded={isMenuOpen} // Tells screen readers whether the menu is open.
           aria-controls="primary-navigation" // Names the menu (by its id) that this button opens.
