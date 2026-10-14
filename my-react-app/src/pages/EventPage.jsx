@@ -31,7 +31,7 @@ function EventPage({ event }) {
   return (
     <section className="mx-auto w-full max-w-[1100px] px-4 py-8 sm:px-6 sm:py-12">
       <a href="#events" className="font-body font-semibold text-accent transition-colors hover:text-muted">
-        &larr; Back to events
+        &larr; Events
       </a>
 
       {/* The event's image as a wide banner. aspect-[21/9] = very wide on phones; md:aspect-[3/1] = even wider from 900px. */}

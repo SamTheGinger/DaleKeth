@@ -22,9 +22,9 @@ const events = [
     venue: 'The Glasshouse, Florida Road, Durban',
     price: 250,
     spots: 40,
-    src: '/Images/Portraits/D3/10.png',
+    src: '/Images/Events/EV1.webp',
     description:
-      'Walk through a room of suspended prints while Aurora lights and photographs the space live. Every guest leaves with a small signed print made on the night.',
+      'Watch art come alive before your eyes. Join us for a one-night live installation where artists turn paint, clay, light and more into masterpieces in real time, led by the mesmerizing Aurora, whose work you have to see being made to believe.',
   },
   {
     id: 2,
@@ -34,9 +34,9 @@ const events = [
     venue: 'Lighthouse Studio, Umhlanga',
     price: 350,
     spots: 12,
-    src: '/Images/Portraits/D3/5.png',
+    src: '/Images/Events/EV2.webp',
     description:
-      'A small, hands-on afternoon. Watch a full portrait session from setup to final edit, then step in front of the camera yourself.',
+      'Step behind the lens and watch the magic happen. Join us for a live photoshoot experience where photographers turn light, styling and a few moments into stunning images in real time, led by the captivating Aurora, whose eye for the perfect shot you have to see in action.',
   },
   {
     id: 3,
@@ -46,9 +46,9 @@ const events = [
     venue: 'Warehouse 9, Durban Point',
     price: 0,
     spots: 80,
-    src: '/Images/Portraits/D3/12.png',
+    src: '/Images/Events/EV3.webp',
     description:
-      'An evening opening of new work, projected large across the warehouse walls, with music and a chance to meet the artist. Free entry, but spots must be booked.',
+      'Wander through a world of color, light and imagination at our art gallery, where talented artists show off their finest pieces and most striking photography. Don’t miss the work of Aurora, whose pieces stop people in their tracks and stay with them long after they leave.',
   },
 ]
 

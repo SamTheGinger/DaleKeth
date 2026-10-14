@@ -18,7 +18,7 @@ const artworks = [
     size: '75cm × 50 cm',
     price: 6500,
     available: 1,
-    src: '/Images/Charcoal-Art/CH1.png',
+    src: '/Images/Charcoal-Art/CH1.webp',
     description: 'Soft Charcoal on Canvas',
   },
   {
@@ -28,7 +28,7 @@ const artworks = [
     size: '100 × 50 cm',
     price: 7250,
     available: 1,
-    src: '/Images/Charcoal-Art/CH2.png',
+    src: '/Images/Charcoal-Art/CH2.webp',
     description: 'Soft Charcoal on Paper',
   },
   {
@@ -38,7 +38,7 @@ const artworks = [
     size: '100 × 30 cm',
     price: 6800,
     available: 1,
-    src: '/Images/Charcoal-Art/CH3.png',
+    src: '/Images/Charcoal-Art/CH3.webp',
     description: 'Soft Charcoal on Paper',
   },
   {
@@ -48,7 +48,7 @@ const artworks = [
     size: '100 × 40 cm',
     price: 7150,
     available: 1,
-    src: '/Images/Charcoal-Art/CH4.png',
+    src: '/Images/Charcoal-Art/CH4.webp',
     description: 'Soft Charcoal on Canvas',
   },
   {
@@ -58,7 +58,7 @@ const artworks = [
     size: '90 × 60 cm',
     price: 4500,
     available: 1,
-    src: '/Images/Charcoal-Art/CH5.png',
+    src: '/Images/Charcoal-Art/CH5.webp',
     description: 'Soft Charcoal on Paper',
   },
   {
@@ -68,7 +68,7 @@ const artworks = [
     size: '100 × 40 cm',
     price: 6750,
     available: 1,
-    src: '/Images/Charcoal-Art/CH6.png',
+    src: '/Images/Charcoal-Art/CH6.webp',
     description: 'Soft Charcoal on Paper',
   },
 ]

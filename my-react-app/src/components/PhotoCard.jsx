@@ -20,7 +20,9 @@ function PhotoCard({ photo, isFavorite, onFavoriteChange }) {
           "group" lets the children react when the link itself is hovered (see group-hover below). */}
       <a href={`#/gallery/${photo.id}`} className="group block focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-text">
         {/* aspect-square = always a perfect square, object-cover = fill the square without stretching (the edges get cropped). */}
-        <img src={photo.src} alt={photo.title} className="aspect-square w-full object-cover" />
+        {/* loading="lazy" = only download this image when it is about to scroll into view, so the page opens faster.
+            decoding="async" = let the browser unpack the image in the background without freezing the page. */}
+        <img loading="lazy" decoding="async" src={photo.src} alt={photo.title} className="aspect-square w-full object-cover" />
         {/* The title. text-xl → sm:text-2xl → md:text-[2rem] = bigger on bigger screens.
             group-hover:text-accent = turns gold when the link is hovered. */}
         <h3 className="mx-2 mt-3 mb-1 text-xl font-semibold text-text transition-colors group-hover:text-accent sm:mx-4 sm:mt-4 sm:text-2xl md:text-[2rem]">

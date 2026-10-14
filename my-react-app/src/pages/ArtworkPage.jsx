@@ -26,7 +26,7 @@ function ArtworkPage({ artwork }) {
   return (
     <section className="mx-auto w-full max-w-[1100px] px-4 py-8 sm:px-6 sm:py-12">
       <a href="#shop" className="font-body font-semibold text-accent transition-colors hover:text-muted">
-        &larr; Back to shop
+        &larr; Shop
       </a>
 
       {/* Mobile-first layout: image on top, details underneath on phones.

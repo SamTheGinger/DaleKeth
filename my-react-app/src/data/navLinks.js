@@ -3,8 +3,8 @@
 // so clicking it scrolls to that section (even from another page; see App.jsx).
 const navLinks = [
   { href: '#hero', label: 'Home' }, // href = where the link goes, label = the text people see.
-  { href: '#portfolio', label: 'Portfolio' },
   { href: '#about', label: 'About' },
+  { href: '#portfolio', label: 'Portfolio' },
   { href: '#shop', label: 'Shop' },
   { href: '#events', label: 'Events' },
   { href: '#book', label: 'Book' },

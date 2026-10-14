@@ -15,7 +15,9 @@ function ArtworkCard({ artwork }) {
       className="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-accent text-center transition-transform duration-200 hover:-translate-y-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text min-[400px]:border-2 sm:rounded-[2rem]"
     >
       {/* aspect-[4/5] = a slightly tall rectangle, like a framed print. object-cover = fill it without stretching. */}
-      <img src={artwork.src} alt={artwork.title} className="aspect-[4/5] w-full object-cover" />
+      {/* loading="lazy" = only download this image when it is about to scroll into view, so the page opens faster.
+          decoding="async" = let the browser unpack the image in the background without freezing the page. */}
+      <img loading="lazy" decoding="async" src={artwork.src} alt={artwork.title} className="aspect-[4/5] w-full object-cover" />
       {/* flex-1 = this text area stretches so every card in a row is the same height. */}
       <div className="flex flex-1 flex-col px-3 pt-3 pb-5 sm:px-4 sm:pt-4">
         <h3 className="text-xl font-semibold text-text transition-colors group-hover:text-accent sm:text-2xl">

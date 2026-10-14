@@ -27,7 +27,7 @@ function GalleryPage({ photo, likedImageIds, onLikeChange }) {
       {/* "Back" link. #portfolio takes you to the home page and scrolls to the portfolio section.
           &larr; is the HTML code for a left arrow (←). */}
       <a href="#portfolio" className="font-body font-semibold text-accent transition-colors hover:text-muted">
-        &larr; Back to Portfolio
+        &larr; Portfolio
       </a>
 
       {/* The page heading area, centred. */}
@@ -49,7 +49,9 @@ function GalleryPage({ photo, likedImageIds, onLikeChange }) {
           // <figure> = an image with something attached to it.
           // relative = lets the heart button be positioned in this figure's corner (see "absolute" below).
           <figure key={image.id} className="relative min-w-0 overflow-hidden rounded-3xl border-2 border-accent">
-            <img src={image.src} alt={image.alt} className="aspect-[4/5] w-full object-cover" />
+            {/* loading="lazy" = only download this image when it is about to scroll into view, so the page opens faster.
+                decoding="async" = let the browser unpack the image in the background without freezing the page. */}
+            <img loading="lazy" decoding="async" src={image.src} alt={image.alt} className="aspect-[4/5] w-full object-cover" />
             {/* absolute + right-3 + bottom-3 = pinned 12px from the bottom-right corner of the image. */}
             <div className="absolute right-3 bottom-3">
               <LikeButton

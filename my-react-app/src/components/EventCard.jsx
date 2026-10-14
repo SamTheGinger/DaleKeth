@@ -12,7 +12,9 @@ function EventCard({ event }) {
     <article className="flex min-w-0 flex-col overflow-hidden rounded-3xl border-2 border-accent bg-surface sm:flex-row">
       {/* aspect-video = a wide 16:9 image on phones. sm:aspect-auto + sm:w-2/5 = from 640px it's 40% of
           the card's width and as tall as the text beside it. */}
-      <img src={event.src} alt="" className="aspect-video w-full object-cover sm:aspect-auto sm:w-2/5" />
+      {/* loading="lazy" = only download this image when it is about to scroll into view, so the page opens faster.
+          decoding="async" = let the browser unpack the image in the background without freezing the page. */}
+      <img loading="lazy" decoding="async" src={event.src} alt="" className="aspect-video w-full object-cover sm:aspect-auto sm:w-2/5" />
       {/* alt="" because the image is decoration: the title below already says what the event is. */}
 
       {/* The text side. flex-1 = takes up the rest of the width. */}
