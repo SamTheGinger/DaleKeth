@@ -27,7 +27,7 @@ function GalleryPage({ photo, likedImageIds, onLikeChange }) {
       {/* "Back" link. #portfolio takes you to the home page and scrolls to the portfolio section.
           &larr; is the HTML code for a left arrow (←). */}
       <a href="#portfolio" className="font-body font-semibold text-accent transition-colors hover:text-muted">
-        &larr; Back to portfolio
+        &larr; Back to Portfolio
       </a>
 
       {/* The page heading area, centred. */}
