@@ -1,0 +1,46 @@
+/* Loads Tailwind CSS: every utility class (flex, text-center, md:grid-cols-3, ...) comes from here. */
+@import "tailwindcss";
+
+/* Design tokens: our own colours, fonts and screen-size breakpoint, carried over from the old styles.css.
+   Tailwind turns each one into classes automatically. For example:
+   --color-accent  ->  text-accent, bg-accent, border-accent
+   --font-body     ->  font-body */
+@theme {
+  --color-background: #111111; /* Near-black page background. */
+  --color-surface: #1c1c1c; /* Slightly lighter dark grey, for the form boxes. */
+  --color-text: #f2f2f2; /* Off-white, for headings and main text. */
+  --color-muted: #9a9a9a; /* Grey, for softer text. */
+  --color-accent: #d4a373; /* Gold, for links, borders and buttons. */
+
+  --font-heading: 'Playfair Display', serif; /* The elegant heading font (serif = backup if it doesn't load). */
+  --font-body: 'Inter', sans-serif; /* The clean body text font. */
+
+  /* Screen-size breakpoint. Tailwind's md: normally starts at 768px. The old site switched to the
+     desktop menu and 3 columns at 900px, so md: is moved to 900px (56.25rem) to keep that look. */
+  --breakpoint-md: 56.25rem;
+}
+
+/* Base styles: defaults for plain HTML elements (html, body), before any classes are added. */
+@layer base {
+  html {
+    scroll-behavior: smooth; /* Menu links glide to their section instead of jumping. */
+    scroll-padding-top: 5.5rem; /* Stop sections from hiding under the sticky header when scrolled to. */
+    -webkit-text-size-adjust: 100%; /* Stop phones from enlarging text on their own. */
+    text-size-adjust: 100%;
+  }
+
+  /* From 900px wide, the header is taller, so leave a bit more room above sections. */
+  @media (width >= 56.25rem) {
+    html {
+      scroll-padding-top: 6rem;
+    }
+  }
+
+  body {
+    font-family: var(--font-heading); /* var(--name) reads one of the tokens above. */
+    background-color: var(--color-background);
+    color: var(--color-muted);
+    line-height: 1.6; /* Space between lines of text. */
+    overflow-wrap: break-word; /* Very long words (like email addresses) wrap instead of sticking out of the screen. */
+  }
+}
