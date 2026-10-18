@@ -7,4 +7,9 @@ import { defineConfig } from 'vite' // A helper that gives your code editor hint
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()], // Switch both plugins on.
+  server: {
+    // Let the dev server answer GitHub Codespaces web addresses (…-5173.app.github.dev).
+    // Without this, opening the forwarded port shows "Blocked request. This host is not allowed."
+    allowedHosts: ['.app.github.dev'],
+  },
 })

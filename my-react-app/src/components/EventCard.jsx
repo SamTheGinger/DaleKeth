@@ -42,7 +42,7 @@ function EventCard({ event }) {
             href={`#/event/${event.id}`}
             className="rounded-full bg-accent px-6 py-2.5 font-body font-semibold text-background transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
           >
-            Book a spot
+            Book a Spot
           </a>
         </div>
       </div>

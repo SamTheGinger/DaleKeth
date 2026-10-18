@@ -80,7 +80,7 @@ function ArtworkPage({ artwork }) {
               <label htmlFor="buyer-email" className={labelClasses}>Email:</label>
               <input type="email" id="buyer-email" name="email" placeholder="Enter your email" autoComplete="email" required className={inputClasses} />
 
-              <button type="submit" className={submitClasses}>Request to buy</button>
+              <button type="submit" className={submitClasses}>Request to Buy</button>
             </form>
           ) : (
             // role="status" makes screen readers announce this message as soon as it appears.
