@@ -3,7 +3,7 @@
 A responsive, dark-themed portfolio, art shop and event-booking site for a portrait and landscape photographer.
 Started for the **Mayerfeld Frontend Developer Practicum** as a static HTML/CSS landing page, and now rebuilt with **React 19**, **Vite** and **Tailwind CSS 4**.
 
-**Live site:** _coming soon_ · **API:** _coming soon_
+**Live site:** https://aurora-photography-roan.vercel.app · **API:** https://api-production-09396.up.railway.app/api/health
 
 ## Week 3: a real backend
 
@@ -146,10 +146,22 @@ Re-seeding updates titles, prices, images and so on, but never resets stock (`av
 
 The API runs on **Railway** and the site on **Vercel**. Vercel forwards every `/api/...` request to Railway (`my-react-app/vercel.json`), so the browser only ever talks to the Vercel address. The sign-in cookie is then a normal first-party cookie, which browsers don't block.
 
-1. **Database:** run `npm run db:migrate` and `npm run db:seed` in `server/` with `DATABASE_URL` pointing at Neon.
-2. **Railway:** New Project → Deploy from GitHub repo → this repo. In the service's **Settings**, set **Root Directory** to `server`. Under **Variables** add `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (your Vercel URL, e.g. `https://aurora-photography.vercel.app`) and `CLIENT_ORIGINS` (the same URL). Under **Networking**, click **Generate Domain**.
-3. **Vercel:** put the Railway domain into `my-react-app/vercel.json`, push, then Add New → Project → this repo, with **Root Directory** `my-react-app`. Vite is detected automatically.
-4. Open `https://YOUR-SITE.vercel.app/api/health`. It should say `{"ok":true}`.
+| Part | Where | Project |
+|---|---|---|
+| Database | Neon, project `snowy-river-22482224`, branch `production` | `server/neon.ts` |
+| API | Railway, project `aurora-photography`, service `api` (Node 22) | https://api-production-09396.up.railway.app |
+| Site | Vercel, project `aurora-photography` (team the-blu-vibe) | https://aurora-photography-roan.vercel.app |
+
+Both were deployed from the command line, so **pushing to GitHub does not redeploy them**. After changing code:
+
+```bash
+cd server && railway up --service api        # redeploy the API (needs: npm i -g @railway/cli, railway login)
+cd my-react-app && vercel deploy --prod      # redeploy the site (needs: npm i -g vercel, vercel login)
+```
+
+After changing the tables or the seed data, run `npm run db:migrate` / `npm run db:seed` in `server/` (they use the direct Neon connection from `server/.env`).
+
+Railway variables: `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (from `neon env pull`), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` and `CLIENT_ORIGINS` (both `https://aurora-photography-roan.vercel.app`), and `NODE_ENV=production`. If the site's address ever changes, update the last two, or sign-in will be refused with "Invalid origin".
 
 ## Fonts
 

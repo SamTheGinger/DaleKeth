@@ -83,3 +83,5 @@ dist-ssr
 # Temporary "swap" files the Vim editor makes while you edit.
 # The ? matches one letter, so this catches .swp, .swo, .swn, etc.
 *.sw?
+.vercel
+.env*
