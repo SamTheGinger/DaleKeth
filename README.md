@@ -5,6 +5,17 @@ Started for the **Mayerfeld Frontend Developer Practicum** as a static HTML/CSS 
 
 **Live site:** https://aurora-photography-roan.vercel.app · **API:** https://api-production-09396.up.railway.app/api/health
 
+## Latest: email subscriptions and a tidier header
+
+- **"View" drop-down in the header.** Portfolio, Shop, Events, Book and Subscribe are grouped under **View ▾**, so the header fits on one row on laptops. On phones, View unfolds inside the ☰ menu.
+- **Email subscriptions, sent with [Resend](https://resend.com)** from `sam@bluvibe.co.za` (the bluvibe.co.za domain is verified in Resend):
+  - A **"Send me news, new work and event updates"** tick box on *Create Account*. It starts unticked, so subscribing is always the visitor's choice (opt-in, as South Africa's POPIA law expects).
+  - A small **"Stay In The Loop"** section at the bottom of the home page. Signed-in visitors subscribe with one click; everyone else is asked to create an account.
+  - The View menu shows **Subscribe** (jumps to that section) or, once you're subscribed, **Subscribed ✓**, which opens a **Your Subscription** page (`#/subscription`): what you get, why it's worth it, and an **Unsubscribe** button (with an "Are you sure?").
+  - Every new subscriber is emailed to **sam@bluvibe.co.za** and added to the **Aurora Photography subscribers** list in Resend, ready for bulk emails (Broadcasts).
+  - Unsubscribing, on the site **or** with the link in a bulk email, sends a **"You've unsubscribed"** email with a **Subscribe again** button. Bulk-email unsubscribes reach the site through a Resend **webhook**.
+- **Footer:** "Say Hello." now has an **Email Me** link (opens a new email to sam@bluvibe.co.za) with the address underneath.
+
 ## Week 3: a real backend
 
 - **Client + server.** `my-react-app/` is the React frontend; the new `server/` folder is a **Node.js + Express 5** API.
@@ -15,7 +26,7 @@ Started for the **Mayerfeld Frontend Developer Practicum** as a static HTML/CSS 
 - **The forms work.** Photoshoot bookings, artwork purchase requests and event bookings are saved in the database. Booking an event takes the spots off, and two people can never book the same last spot.
 - **Secrets stay out of git.** The database URL and auth secret live in `server/.env`, which is ignored (`server/.env.example` is the empty template).
 
-## What's new since the previous README update
+## Week 2: rebuilt in React
 
 - **Rebuilt in React + Tailwind.** The old `index.html`, `styles.css` and `nav.js` were replaced by a Vite React app in `my-react-app/`. The original colours, fonts and 900px breakpoint were carried over as Tailwind theme tokens.
 - **Multiple pages** using a small hash router (`#/gallery/3`, `#/artwork/1`, `#/event/2`), with working Back/Forward buttons and a "Page Not Found" page.
@@ -30,12 +41,14 @@ Started for the **Mayerfeld Frontend Developer Practicum** as a static HTML/CSS 
 
 ## Features
 
-- Sticky header with a hamburger menu below 900px
+- Sticky header with a hamburger menu below 900px, and a **View ▾** drop-down for the page sections
 - Full-width hero banner with a dark overlay
 - About section ("The Woman Behind The Lens")
 - Portfolio grid with filters and favourites, linking to likeable gallery pages
 - Shop and Events sections with detail pages, quantity steppers and live price totals
 - Photoshoot booking form
+- Accounts (sign up, sign in, sign out) with favourites saved to your account
+- Email subscriptions: opt-in at sign-up, a "Stay In The Loop" section, and a Your Subscription page with unsubscribe
 - Smooth scrolling between sections, even when coming from another page
 - Mobile-first layout: 1 column on phones, 2 on tablets, 3 on desktop
 
@@ -73,20 +86,21 @@ DaleKeth/
 │   └── src/
 │       ├── main.jsx               Starts React
 │       ├── App.jsx                Picks the page from the URL; loads and saves favourites
-│       ├── components/            Header (Sign In / Sign Out), Portfolio, Shop, Events, BookingForm,
+│       ├── components/            Header (View ▾ drop-down, Sign In / Sign Out), Portfolio, Shop, Events,
+│       │                          BookingForm, SubscribeSection ("Stay In The Loop"), Footer,
 │       │                          LoadState ("Loading…" / error message), cards and buttons
-│       ├── pages/                 HomePage, GalleryPage, ArtworkPage, EventPage,
-│       │                          AuthPage (sign in + sign up), NotFoundPage
-│       ├── data/navLinks.js       The menu links (the only data left in the client)
+│       ├── pages/                 HomePage, GalleryPage, ArtworkPage, EventPage, AuthPage (sign in + sign up,
+│       │                          with the email tick box), SubscriptionPage (#/subscription), NotFoundPage
+│       ├── data/navLinks.js       The menu links, including the View group (the only data left in the client)
 │       └── utils/
 │           ├── api.js             apiFetch() and the useApi() hook: every call to the server goes through here
-│           ├── authClient.js      The browser half of Better Auth (useSession, signIn, signUp, signOut)
+│           ├── authClient.js      The browser half of Better Auth (useSession, signIn, signUp, signOut, refreshSession)
 │           ├── useSubmit.js       Shared "send this form to the server" logic
 │           ├── useHashRoute.js    The router (#/gallery/3, #/signin, ...)
 │           └── format.js          Rand prices and dates
 │
 └── server/                        THE API (Node.js + Express 5, deployed to Railway)
-    ├── .env                       Secrets: database URLs + auth secret (NOT in git)
+    ├── .env                       Secrets: database URLs, auth secret, Resend key (NOT in git)
     ├── .env.example               Empty template of .env (in git)
     ├── neon.ts                    Neon project settings (used by the neon CLI)
     ├── src/
@@ -94,17 +108,22 @@ DaleKeth/
     │   ├── app.js                 Builds the Express app: CORS, auth routes, JSON, our routes, errors
     │   ├── config.js              Reads environment variables; stops with a clear error if one is missing
     │   ├── db.js                  The Postgres connection pool + query() and transaction() helpers
-    │   ├── auth.js                Better Auth setup + requireUser / optionalUser middleware
+    │   ├── auth.js                Better Auth setup (+ the marketingOptIn field and sign-up hook),
+    │   │                          requireUser / optionalUser middleware
+    │   ├── email.js               Resend: subscriber notifications, the subscribers list, unsubscribe emails
     │   ├── validate.js            Checks everything the browser sends (ids, emails, numbers)
     │   └── routes/
     │       ├── catalog.js         GET photos, artworks, events (public)
     │       ├── favorites.js       GET / PUT / DELETE favourites (signed-in only)
-    │       └── bookings.js        POST the three forms (anyone; linked to the account if signed in)
+    │       ├── bookings.js        POST the three forms (anyone; linked to the account if signed in)
+    │       ├── subscription.js    GET / POST / DELETE the signed-in person's email subscription
+    │       └── resendWebhook.js   Resend tells us when someone unsubscribes from a bulk email
     └── db/
         ├── schema.sql             CREATE TABLE statements for the site's own tables
         ├── migrate.js             npm run db:migrate: creates Better Auth's tables, then runs schema.sql
         ├── seed.js                npm run db:seed: copies seed-data/ into the tables
         ├── seed-data/             photos.js, artworks.js, events.js (the content that used to be hardcoded)
+        ├── sync-subscribers.js    npm run subscribers:sync: adds every opted-in account to the Resend list
         └── use-direct-connection.js   Makes migrate/seed use Neon's direct connection (see section 4)
 ```
 
@@ -135,7 +154,7 @@ Auth is handled by **[Better Auth](https://better-auth.com)**, a library with tw
 Sign-in works the same way (`POST /api/auth/sign-in/email`, comparing against the hash). Sign-out (`POST /api/auth/sign-out`) deletes the session row and clears the cookie.
 
 **How the UI knows who's signed in:** `authClient.useSession()` asks `GET /api/auth/get-session` and shares the answer with every component that uses it.
-- `Header.jsx` shows **Sign Out** when there's a session and **Sign In** when there isn't.
+- `Header.jsx` shows **Sign Out** when there's a session and **Sign In** when there isn't, and **Subscribe** or **Subscribed ✓** in the View menu (from `session.user.marketingOptIn`).
 - The three forms fill in your name and email.
 - `App.jsx` loads your favourites.
 
@@ -190,7 +209,7 @@ Values are always passed separately as `$1, $2, …`, never pasted into the SQL 
 
 | Table | Created by | What's in it |
 |---|---|---|
-| `user` | Better Auth | One row per account: name, email |
+| `user` | Better Auth | One row per account: name, email, plus our extra `marketingOptIn` column (true = subscribed to the emails) |
 | `account` | Better Auth | The hashed password for each user |
 | `session` | Better Auth | Who's signed in: token, user id, expiry (7 days) |
 | `verification` | Better Auth | Used for email-verification codes (not used yet) |
@@ -239,7 +258,43 @@ What happens when a signed-in visitor taps **Favourite** on a photo:
 7. The server replies `204 No Content`. If anything had failed, `App.jsx` would put the heart back the way it was.
 8. Next time this user signs in, anywhere, `App.jsx` runs `GET /api/favorites` → `[3]`, and the heart is filled again.
 
-### 6. Environment variables (`server/.env`)
+### 6. Email subscriptions (Resend)
+
+Emails go through **[Resend](https://resend.com)**, an email-sending service. The domain **bluvibe.co.za** is verified there (three DNS records at Register Domain SA), so emails can come from `sam@bluvibe.co.za` and land in inboxes rather than spam. All the Resend code is in `server/src/email.js`.
+
+**Where "subscribed" is stored:** a `marketingOptIn` column on Better Auth's `user` table. `auth.js` declares it as an extra field (`user.additionalFields`), so Better Auth adds the column (`npm run db:migrate`), accepts it from the sign-up form, and includes it in the session. That's how the header knows whether to show **Subscribe** or **Subscribed ✓** without asking the server separately.
+
+**Three ways to subscribe, one result:**
+
+| How | Code |
+|---|---|
+| Tick the box on *Create Account* | `AuthPage.jsx` sends `marketingOptIn: true`; a Better Auth **hook** (`databaseHooks.user.create.after` in `auth.js`) runs after the account is saved |
+| Click **Subscribe** in "Stay In The Loop" | `SubscribeSection.jsx` → `POST /api/subscription` |
+| Click **Subscribe (Again)** on Your Subscription | `SubscriptionPage.jsx` → `POST /api/subscription` |
+
+Each one: sets `marketingOptIn = true`, adds the person to the **Aurora Photography subscribers** list (a Resend "segment"), and emails **sam@bluvibe.co.za** ("New email subscriber: …", Reply goes to the subscriber). A failed email never stops the sign-up; it's only logged.
+
+**Two ways to unsubscribe, one result:**
+
+| How | What happens |
+|---|---|
+| **Unsubscribe** on Your Subscription | `DELETE /api/subscription`: sets `marketingOptIn = false`, marks them unsubscribed in Resend, sends the "You've unsubscribed" email |
+| The unsubscribe link at the bottom of a bulk email | Resend marks them unsubscribed, then calls our **webhook** (`POST /api/webhooks/resend`, event `contact.updated`). `resendWebhook.js` checks the message's signature (so nobody can fake one), sets `marketingOptIn = false` and sends the same email |
+
+The "You've unsubscribed" email has a **Subscribe again** button that opens `#/subscription`. Only one confirmation is ever sent: the website path updates our database *before* telling Resend, so when Resend's webhook arrives a moment later it sees the account is already unsubscribed and stays quiet. As a back-up, `GET /api/subscription` also checks Resend, in case a webhook was ever missed.
+
+**Never re-subscribed by accident:** `addSubscriberToList()` leaves anyone who unsubscribed alone. Only the person clicking Subscribe themselves can re-subscribe them.
+
+**Keeping the page in sync:** after subscribing or unsubscribing, the page calls `refreshSession()` (`authClient.js`). That fires Better Auth's own "session changed" signal, so every component using `useSession()`, including the header, updates at once without a reload.
+
+**Sending a bulk email** (done in the Resend dashboard, not in code):
+1. [resend.com/broadcasts](https://resend.com/broadcasts) → **Create broadcast**.
+2. **From** `Sam <sam@bluvibe.co.za>`, **Segment** *Aurora Photography subscribers*, then a subject.
+3. Write the email, click **Send test** to check it, then **Send** or **Schedule**.
+
+Resend adds the unsubscribe link automatically and never emails anyone who has unsubscribed.
+
+### 7. Environment variables (`server/.env`)
 
 | Variable | What it's for |
 |---|---|
@@ -249,6 +304,11 @@ What happens when a signed-in visitor taps **Favourite** on a photo:
 | `BETTER_AUTH_URL` | The address people use for the site (`http://localhost:5173` locally, the Vercel URL live) |
 | `CLIENT_ORIGINS` | Websites allowed to sign in; anything else gets "Invalid origin" |
 | `PORT` | Local only; Railway sets its own |
+| `RESEND_API_KEY` | Resend key (Full access: it manages the subscriber list, not just sending). Optional: without it the site works and emails are skipped |
+| `EMAIL_FROM` | Who emails come from: `Aurora Photography <sam@bluvibe.co.za>` |
+| `MARKETING_NOTIFY_EMAIL` | Who's told about new subscribers: `sam@bluvibe.co.za` |
+| `RESEND_SEGMENT_ID` | The id of the *Aurora Photography subscribers* list in Resend (`npm run subscribers:sync` creates the list and prints it) |
+| `RESEND_WEBHOOK_SECRET` | Lets the server check that webhook calls really come from Resend (Resend → Webhooks → signing secret) |
 
 `server/.gitignore` lists `.env`, so it's never committed. `server/src/config.js` stops the server with a clear message if a required variable is missing.
 
@@ -265,11 +325,15 @@ What happens when a signed-in visitor taps **Favourite** on a photo:
 | `POST /api/photoshoot-bookings` | No | `{ name, email, phone, style }` |
 | `GET /api/favorites` | Yes | The signed-in user's favourite photo ids, e.g. `[3, 11]` |
 | `PUT` / `DELETE /api/favorites/:photoId` | Yes | Add / remove a favourite |
+| `GET /api/subscription` | Yes | `{ subscribed, changed }`: is the signed-in person getting the emails? |
+| `POST /api/subscription` | Yes | Subscribe (adds them to the Resend list, emails the photographer) |
+| `DELETE /api/subscription` | Yes | Unsubscribe (and email them a confirmation with a "Subscribe again" button) |
+| `POST /api/webhooks/resend` | Resend only | Called by Resend when a contact changes; signature-checked |
 | `/api/auth/*` | | Better Auth: `sign-up/email`, `sign-in/email`, `sign-out`, `get-session` |
 
 ## Run it locally
 
-You need [Node.js](https://nodejs.org/) 20 or newer and a free [Neon](https://neon.tech) Postgres database.
+You need [Node.js](https://nodejs.org/) 22 or newer and a free [Neon](https://neon.tech) Postgres database. A [Resend](https://resend.com) key is optional; without it, everything works except the emails.
 
 **1. The server** (first terminal):
 
@@ -281,6 +345,8 @@ npm run db:migrate          # create the tables (safe to run again)
 npm run db:seed             # load the photos, artworks and events (safe to run again)
 npm run dev                 # API on http://localhost:3000; restarts when you save
 ```
+
+Other server commands: `npm run subscribers:sync` adds every account that has opted in to the Resend subscribers list (and creates the list the first time). New subscribers are added automatically, so you rarely need it.
 
 **2. The client** (second terminal):
 
@@ -306,7 +372,10 @@ Other client commands:
 | Portfolio photos and gallery series | `server/db/seed-data/photos.js` then `npm run db:seed` (images go in `my-react-app/public/Images/`) |
 | Artwork, prices and stock | `server/db/seed-data/artworks.js` then `npm run db:seed` |
 | Events, dates and spots | `server/db/seed-data/events.js` then `npm run db:seed` |
-| Menu links | `my-react-app/src/data/navLinks.js` |
+| Menu links (and what's inside View ▾) | `my-react-app/src/data/navLinks.js` |
+| What the Your Subscription page promises | The `whatYouGet` and `benefits` lists at the top of `my-react-app/src/pages/SubscriptionPage.jsx` |
+| The wording of the automatic emails | `server/src/email.js` (new-subscriber notice and "You've unsubscribed") |
+| Bulk emails to subscribers | The Resend dashboard → Broadcasts (see section 6 above) |
 
 Re-seeding updates titles, prices, images and so on, but never resets stock (`available`, `spots`), so it won't undo real bookings. To change stock, edit it in the Neon SQL editor.
 
@@ -331,7 +400,12 @@ cd my-react-app && vercel deploy --prod      # needs: npm i -g vercel, vercel lo
 
 After changing the tables or the seed data, run `npm run db:migrate` / `npm run db:seed` in `server/` (they use the direct Neon connection from `server/.env`).
 
-Railway variables: `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (from `neon env pull`), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` and `CLIENT_ORIGINS` (both `https://aurora-photography-roan.vercel.app`), and `NODE_ENV=production`. If the site's address ever changes, update the last two, or sign-in will be refused with "Invalid origin".
+Railway variables: `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (from `neon env pull`), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` and `CLIENT_ORIGINS` (both `https://aurora-photography-roan.vercel.app`), `NODE_ENV=production`, and the five Resend ones from section 7 (`RESEND_API_KEY`, `EMAIL_FROM`, `MARKETING_NOTIFY_EMAIL`, `RESEND_SEGMENT_ID`, `RESEND_WEBHOOK_SECRET`). If the site's address ever changes, update `BETTER_AUTH_URL` and `CLIENT_ORIGINS`, or sign-in will be refused with "Invalid origin" (and the "Subscribe again" button in emails would point to the old address).
+
+**Resend** (resend.com, signed in as the site owner):
+- **Domains:** `bluvibe.co.za`, verified. Its three DNS records (`resend._domainkey` TXT, `send` and `rsend` CNAMEs) live at Register Domain SA. Leave them in place, or emails from sam@bluvibe.co.za will be rejected.
+- **Webhooks:** `https://api-production-09396.up.railway.app/api/webhooks/resend`, event `contact.updated`. If the API's address ever changes, update the webhook too.
+- **Audience:** the *Aurora Photography subscribers* segment.
 
 ## Fonts
 
@@ -339,7 +413,7 @@ Railway variables: `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (from `neon env pu
 
 ## Next steps
 
-- Email the photographer (and the customer) when a form is sent, for example with Resend.
+- Email the photographer (and the customer) when a booking or purchase form is sent. Resend is already set up, so this is mostly new email templates in `server/src/email.js`.
 - Take payments for artwork and event tickets (for example PayFast, Yoco or Stripe).
 - Save gallery likes to the account too (favourites are saved; likes still reset on refresh).
 - An admin page for viewing bookings (for now, use the Neon dashboard's Tables view).
