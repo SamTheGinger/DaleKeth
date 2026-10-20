@@ -1,5 +1,7 @@
 // The menu links. The Header shows them in this order; an item with "children" becomes a drop-down
 // menu (View ▾) holding those links. The Footer shows every link in one flat list, except Contact.
+// whenSubscribed = a different label and address the Header uses once the signed-in person is subscribed to
+// the emails (Subscribe -> Subscribed, which opens their "Your Subscription" page). The Footer leaves these links out.
 // Each href starting with # is the id of a section on the home page,
 // so clicking it scrolls to that section (even from another page; see App.jsx).
 const navLinks = [
@@ -12,6 +14,11 @@ const navLinks = [
       { href: '#shop', label: 'Shop' },
       { href: '#events', label: 'Events' },
       { href: '#book', label: 'Book' },
+      {
+        href: '#subscribe', // The "Stay In The Loop" section, last on the home page.
+        label: 'Subscribe',
+        whenSubscribed: { href: '#/subscription', label: 'Subscribed' }, // Their subscription page instead.
+      },
     ],
   },
   { href: '#contact', label: 'Contact' },

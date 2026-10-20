@@ -31,3 +31,8 @@ export const EMAIL_FROM = process.env.EMAIL_FROM || 'Aurora Photography <onboard
 // The Resend segment (mailing list) that opted-in accounts are added to. `npm run subscribers:sync`
 // creates it the first time and prints the id to put here.
 export const RESEND_SEGMENT_ID = process.env.RESEND_SEGMENT_ID || ''
+// The website's address, for links inside emails (e.g. "Subscribe again"). It's the same address people
+// open the site at, which Better Auth already needs, so it's reused here.
+export const SITE_URL = BETTER_AUTH_URL.replace(/\/$/, '')
+// The secret Resend uses to sign its webhook calls (Resend → Webhooks), so we can check they're genuine.
+export const RESEND_WEBHOOK_SECRET = process.env.RESEND_WEBHOOK_SECRET || ''

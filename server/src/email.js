@@ -1,10 +1,10 @@
-// Emails, through Resend (resend.com). Used by auth.js when a new account ticks the marketing box:
+// Emails, through Resend (resend.com). Used when someone opts in to marketing emails:
 //   1. sendMarketingOptInEmail()  tells the photographer about the new subscriber.
 //   2. addSubscriberToList()      adds them to the subscribers list (a Resend "segment").
 // Bulk emails to that list are written and sent from the Resend dashboard (Broadcasts), which adds an
 // unsubscribe link to every email and stops emailing anyone who unsubscribes.
 import { Resend } from 'resend'
-import { EMAIL_FROM, MARKETING_NOTIFY_EMAIL, RESEND_API_KEY, RESEND_SEGMENT_ID } from './config.js'
+import { EMAIL_FROM, MARKETING_NOTIFY_EMAIL, RESEND_API_KEY, RESEND_SEGMENT_ID, SITE_URL } from './config.js'
 
 export const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 
@@ -14,13 +14,20 @@ function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char])
 }
 
-// Tells the photographer that a new account wants marketing emails.
-export async function sendMarketingOptInEmail(user) {
+// Tells the photographer that someone wants marketing emails.
+//   via 'signup'  ticked the box while creating their account (the default).
+//   via 'button'  clicked Subscribe at the bottom of the home page later, while signed in.
+export async function sendMarketingOptInEmail(user, { via = 'signup' } = {}) {
   if (!resend) {
     console.warn(`RESEND_API_KEY is not set, so no email was sent for new subscriber ${user.email}.`)
     return
   }
-  const date = new Date(user.createdAt).toLocaleString('en-ZA', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Africa/Johannesburg' })
+  const when = via === 'signup' ? user.createdAt : new Date() // When they opted in.
+  const date = new Date(when).toLocaleString('en-ZA', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Africa/Johannesburg' })
+  const how =
+    via === 'signup'
+      ? 'created an account and ticked "Send me news, new work and event updates"'
+      : 'clicked Subscribe on the home page (they already had an account)'
 
   // Resend gives back { data, error } instead of throwing, so we check error ourselves.
   const { error } = await resend.emails.send({
@@ -28,30 +35,35 @@ export async function sendMarketingOptInEmail(user) {
     to: MARKETING_NOTIFY_EMAIL,
     replyTo: user.email, // Pressing "Reply" in your inbox writes straight to the new subscriber.
     subject: `New email subscriber: ${user.name}`,
-    text: `${user.name} (${user.email}) created an account and ticked "Send me news and offers" on ${date}.`,
-    html: `<p><strong>${escapeHtml(user.name)}</strong> (${escapeHtml(user.email)}) created an account on Aurora Photography
-           and ticked <em>&ldquo;Send me news and offers&rdquo;</em>.</p><p>Opted in: ${escapeHtml(date)}</p>`,
+    text: `${user.name} (${user.email}) ${how} on Aurora Photography.\nOpted in: ${date}`,
+    html: `<p><strong>${escapeHtml(user.name)}</strong> (${escapeHtml(user.email)}) ${escapeHtml(how)} on Aurora Photography.</p>
+           <p>Opted in: ${escapeHtml(date)}</p>`,
   })
   if (error) throw new Error(`Resend: ${error.message}`)
   console.log(`Marketing opt-in email sent for ${user.email}.`)
 }
 
 // Adds one person to the subscribers list in Resend, so they get the bulk emails (Broadcasts).
-// Safe to call again for the same person. It NEVER re-subscribes someone who clicked "unsubscribe"
-// in an email: Resend remembers that on the contact, and we leave existing contacts' choice alone.
-export async function addSubscriberToList(user, segmentId = RESEND_SEGMENT_ID) {
+// Safe to call again for the same person. By default it NEVER re-subscribes someone who clicked
+// "unsubscribe" in an email: Resend remembers that on the contact, and we leave that choice alone.
+// resubscribe: true is only for when the person themselves has just clicked Subscribe again on the site.
+export async function addSubscriberToList(user, { segmentId = RESEND_SEGMENT_ID, resubscribe = false } = {}) {
   if (!resend || !segmentId) {
     console.warn(`RESEND_API_KEY or RESEND_SEGMENT_ID is not set, so ${user.email} was not added to the subscribers list.`)
     return 'skipped'
   }
 
-  // Already a contact in Resend? Then only make sure they're in the list; don't change "unsubscribed".
+  // Already a contact in Resend? Then only make sure they're in the list.
   const existing = await resend.contacts.get(user.email)
   if (existing.data) {
-    if (existing.data.unsubscribed) return 'unsubscribed earlier, left alone'
+    if (existing.data.unsubscribed) {
+      if (!resubscribe) return 'unsubscribed earlier, left alone'
+      const { error } = await resend.contacts.update({ email: user.email, unsubscribed: false })
+      if (error) throw new Error(`Resend: ${error.message}`)
+    }
     const { error } = await resend.contacts.segments.add({ email: user.email, segmentId })
     if (error && !/already/i.test(error.message)) throw new Error(`Resend: ${error.message}`)
-    return 'already a contact, on the list'
+    return existing.data.unsubscribed ? 're-subscribed' : 'already a contact, on the list'
   }
 
   // New to Resend: create them, straight into the list.
@@ -63,4 +75,46 @@ export async function addSubscriberToList(user, segmentId = RESEND_SEGMENT_ID) {
   })
   if (error) throw new Error(`Resend: ${error.message}`)
   return 'added'
+}
+
+// Has this person clicked "unsubscribe" in one of the bulk emails? Resend keeps track of that.
+// Gives back true or false, or null if we can't tell (Resend not set up, or they're not a contact there).
+export async function hasUnsubscribedInResend(email) {
+  if (!resend) return null
+  const { data } = await resend.contacts.get(email)
+  return data ? Boolean(data.unsubscribed) : null
+}
+
+// Marks someone as unsubscribed in Resend, so no bulk emails (Broadcasts) go to them.
+export async function unsubscribeInResend(email) {
+  if (!resend) return
+  const { error } = await resend.contacts.update({ email, unsubscribed: true })
+  if (error && !/not found/i.test(error.message)) throw new Error(`Resend: ${error.message}`)
+}
+
+// Confirms to the person that they've unsubscribed, with a button to subscribe again if they change their mind.
+// Sent whether they unsubscribed on the website or with the link at the bottom of one of the bulk emails.
+export async function sendUnsubscribedEmail(user) {
+  if (!resend) {
+    console.warn(`RESEND_API_KEY is not set, so no unsubscribe confirmation was sent to ${user.email}.`)
+    return
+  }
+  const resubscribeUrl = `${SITE_URL}/#/subscription` // The "Your Subscription" page, which has a Subscribe button.
+  const greeting = user.name ? `Hi ${user.name},` : 'Hi,'
+  const { error } = await resend.emails.send({
+    from: EMAIL_FROM,
+    to: user.email,
+    replyTo: MARKETING_NOTIFY_EMAIL, // A reply reaches the photographer.
+    subject: 'You’ve unsubscribed from Aurora Photography emails',
+    text: `${greeting}\n\nYou've been unsubscribed, so you won't get any more news, new work or event updates from Aurora Photography.\n\nChanged your mind? Subscribe again here: ${resubscribeUrl}\n\nAurora Photography`,
+    html: `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:#222;max-width:520px">
+      <p>${escapeHtml(greeting)}</p>
+      <p>You&rsquo;ve been unsubscribed, so you won&rsquo;t get any more news, new work or event updates from Aurora Photography.</p>
+      <p>Changed your mind? You can subscribe again at any time:</p>
+      <p><a href="${resubscribeUrl}" style="display:inline-block;background:#d4a373;color:#111;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:bold">Subscribe again</a></p>
+      <p style="color:#777;font-size:14px">Aurora Photography &middot; Durban, South Africa</p>
+    </div>`,
+  })
+  if (error) throw new Error(`Resend: ${error.message}`)
+  console.log(`Unsubscribe confirmation sent to ${user.email}.`)
 }

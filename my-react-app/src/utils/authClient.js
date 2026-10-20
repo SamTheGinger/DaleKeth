@@ -14,3 +14,11 @@ export const authClient = createAuthClient({
   // The API lives at /api on this same website (see utils/api.js), so we point at our own address.
   baseURL: window.location.origin,
 })
+
+// Asks the server for the session again, and updates every component using useSession() (the Header,
+// the forms, App.jsx). Call it after changing something on the account outside Better Auth, such as
+// subscribing to the emails, so the whole site sees the change. ($sessionSignal is Better Auth's own
+// "the session changed" signal; its plugins use the same call.)
+export function refreshSession() {
+  authClient.$store.notify('$sessionSignal')
+}

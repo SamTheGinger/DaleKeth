@@ -11,6 +11,18 @@ import { authClient } from '../utils/authClient.js'
 import useSubmit from '../utils/useSubmit.js'
 import { errorClasses, inputClasses, labelClasses, submitClasses, thankYouClasses } from '../components/formStyles.js'
 
+// Reads (and forgets) the page saved by SubscriptionPage.jsx before sending someone here to sign in.
+// try/catch because some browsers (e.g. private mode) block storage; then there's simply nothing saved.
+function takeReturnTo() {
+  try {
+    const returnTo = sessionStorage.getItem('returnTo')
+    sessionStorage.removeItem('returnTo')
+    return returnTo
+  } catch {
+    return null
+  }
+}
+
 function AuthPage({ mode }) {
   const isSignUp = mode === 'signup'
   const { data: session, isPending } = authClient.useSession()
@@ -29,7 +41,9 @@ function AuthPage({ mode }) {
         })
       : await authClient.signIn.email({ email: form.email, password: form.password })
     if (error) throw new Error(error.message || 'Something went wrong. Please try again.')
-    window.location.hash = '#portfolio' // Signed in: back to the portfolio, where favourites can now be saved.
+    // Signed in. If they came from a page that asked them to sign in first (e.g. Your Subscription), go back
+    // there; otherwise to the portfolio, where favourites can now be saved.
+    window.location.hash = takeReturnTo() ?? '#portfolio'
   })
 
   async function handleSignOut() {

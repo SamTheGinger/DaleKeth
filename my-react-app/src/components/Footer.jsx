@@ -5,7 +5,8 @@ import { allNavLinks } from '../data/navLinks.js' // Every menu link in one flat
 function Footer() {
   // The footer IS the Contact section, so it doesn't need a link to itself.
   // .filter() keeps every link except the one whose href is '#contact'.
-  const footerLinks = allNavLinks.filter((link) => link.href !== '#contact')
+  // It also leaves out header-only links like Subscribe (whenSubscribed), which depend on who's signed in.
+  const footerLinks = allNavLinks.filter((link) => link.href !== '#contact' && !link.whenSubscribed)
 
   return (
     // id="contact" is what the menu's "Contact" link (#contact) jumps to.

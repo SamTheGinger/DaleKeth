@@ -9,6 +9,9 @@ import { authClient } from '../utils/authClient.js' // Tells us who (if anyone) 
 // The last item is "Sign In" for visitors, or "Sign Out" once someone is signed in.
 function Header() {
   const { data: session, isPending } = authClient.useSession() // session is null when nobody is signed in.
+  // true once the signed-in person has opted in to the emails. Signing up with the box ticked, or clicking
+  // Subscribe at the bottom of the home page, both update this (see SubscribeSection.jsx).
+  const isSubscribed = Boolean(session?.user.marketingOptIn)
   const headerRef = useRef(null) // Gives us the real <header> element so we can measure it.
 
   // The header's height changes with the screen width (and whether the links fit on one row beside the logo).
@@ -185,13 +188,20 @@ function Header() {
                   id="view-menu"
                   className={`${isViewOpen ? 'block' : 'hidden'} mb-3 rounded-lg bg-surface md:absolute md:top-full md:left-1/2 md:z-20 md:mt-3 md:mb-0 md:min-w-44 md:-translate-x-1/2 md:border-2 md:border-accent md:bg-background md:py-2 md:shadow-[0_12px_24px_rgba(0,0,0,0.45)]`}
                 >
-                  {link.children.map((child) => (
-                    <li key={child.href}>
-                      <a href={child.href} onClick={closeMenus} className={viewLinkClasses}>
-                        {child.label}
-                      </a>
-                    </li>
-                  ))}
+                  {/* A link with whenSubscribed (Subscribe) swaps to its other label and address (Subscribed, which
+                      opens #/subscription) once the signed-in person is subscribed. */}
+                  {link.children.map((child) => {
+                    const item = child.whenSubscribed && isSubscribed ? child.whenSubscribed : child
+                    return (
+                      <li key={child.href}>
+                        <a href={item.href} onClick={closeMenus} className={viewLinkClasses}>
+                          {item.label}
+                          {/* A small gold tick after "Subscribed". aria-hidden = screen readers just say "Subscribed". */}
+                          {item !== child && <span aria-hidden="true" className="ml-1.5">&#10003;</span>}
+                        </a>
+                      </li>
+                    )
+                  })}
                 </ul>
               </li>
             ) : (

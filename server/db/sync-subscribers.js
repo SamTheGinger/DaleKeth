@@ -21,7 +21,7 @@ if (!segmentId) {
 
 const { rows } = await pool.query('SELECT name, email FROM "user" WHERE "marketingOptIn" = true ORDER BY "createdAt"')
 for (const user of rows) {
-  console.log(`  ${user.email}: ${await addSubscriberToList(user, segmentId)}`)
+  console.log(`  ${user.email}: ${await addSubscriberToList(user, { segmentId })}`)
 }
 console.log(`${rows.length} opted-in account(s) checked.`)
 await pool.end()
