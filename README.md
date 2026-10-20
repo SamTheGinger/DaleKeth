@@ -152,11 +152,13 @@ The API runs on **Railway** and the site on **Vercel**. Vercel forwards every `/
 | API | Railway, project `aurora-photography`, service `api` (Node 22) | https://api-production-09396.up.railway.app |
 | Site | Vercel, project `aurora-photography` (team the-blu-vibe) | https://aurora-photography-roan.vercel.app |
 
-Both were deployed from the command line, so **pushing to GitHub does not redeploy them**. After changing code:
+**Pushing to `main` deploys both automatically.** Railway rebuilds the API from `server/` and Vercel rebuilds the site from `my-react-app/` (each project's Root Directory is set to its folder). Watch the builds in each dashboard.
+
+To deploy without pushing (for example, to try something out), use the command-line tools:
 
 ```bash
-cd server && railway up --service api        # redeploy the API (needs: npm i -g @railway/cli, railway login)
-cd my-react-app && vercel deploy --prod      # redeploy the site (needs: npm i -g vercel, vercel login)
+cd server && railway up --service api        # needs: npm i -g @railway/cli, railway login
+cd my-react-app && vercel deploy --prod      # needs: npm i -g vercel, vercel login
 ```
 
 After changing the tables or the seed data, run `npm run db:migrate` / `npm run db:seed` in `server/` (they use the direct Neon connection from `server/.env`).
