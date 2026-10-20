@@ -19,3 +19,9 @@ export const CLIENT_ORIGINS = (process.env.CLIENT_ORIGINS || BETTER_AUTH_URL)
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
+
+// Emails (see src/email.js). RESEND_API_KEY is optional: without it the server still runs,
+// it just logs that it skipped the email instead of sending it.
+export const RESEND_API_KEY = process.env.RESEND_API_KEY || ''
+// Who gets told when a new account ticks "Send me news and offers".
+export const MARKETING_NOTIFY_EMAIL = process.env.MARKETING_NOTIFY_EMAIL || 'sam@bluvibe.co.za'

@@ -19,7 +19,14 @@ function AuthPage({ mode }) {
     // Better Auth gives back { data, error } instead of throwing, so we throw the error ourselves
     // to let useSubmit show it.
     const { error } = isSignUp
-      ? await authClient.signUp.email({ name: form.name, email: form.email, password: form.password })
+      ? await authClient.signUp.email({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          // A ticked checkbox sends 'on'; an unticked one sends nothing. === 'on' turns that into true/false.
+          // The server saves it on the account and, if true, emails the photographer (server/src/auth.js).
+          marketingOptIn: form.marketing === 'on',
+        })
       : await authClient.signIn.email({ email: form.email, password: form.password })
     if (error) throw new Error(error.message || 'Something went wrong. Please try again.')
     window.location.hash = '#portfolio' // Signed in: back to the portfolio, where favourites can now be saved.
@@ -76,6 +83,20 @@ function AuthPage({ mode }) {
               required
               className={inputClasses}
             />
+
+            {/* Only on sign-up: the email marketing box. It starts UNTICKED, so people choose for themselves
+                (opt-in), which is what South Africa's POPIA law expects for marketing emails.
+                The whole row is the <label>, so tapping the text ticks the box too.
+                accent-accent = a gold tick box; size-5 = 20px, easy to tap; mt-0.5 lines it up with the first line of text. */}
+            {isSignUp && (
+              <label className="mt-6 flex cursor-pointer items-start gap-3 font-body text-text">
+                <input type="checkbox" name="marketing" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-accent" />
+                <span>
+                  Send me news, new work and event updates by email.
+                  <span className="block text-sm text-muted">Optional. You can unsubscribe at any time.</span>
+                </span>
+              </label>
+            )}
 
             {error && <p role="alert" className={errorClasses}>{error.message}</p>}
 
