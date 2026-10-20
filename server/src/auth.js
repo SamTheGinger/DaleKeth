@@ -7,7 +7,7 @@ import { betterAuth } from 'better-auth'
 import { fromNodeHeaders } from 'better-auth/node'
 import { pool } from './db.js'
 import { BETTER_AUTH_URL, CLIENT_ORIGINS } from './config.js'
-import { sendMarketingOptInEmail } from './email.js'
+import { addSubscriberToList, sendMarketingOptInEmail } from './email.js'
 
 export const auth = betterAuth({
   database: pool,
@@ -34,12 +34,14 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        // Runs right after a new account is saved. If they ticked the box, email the photographer.
+        // Runs right after a new account is saved. If they ticked the box, email the photographer
+        // and add them to the subscribers list in Resend (for bulk emails).
         after: async (user) => {
           if (!user.marketingOptIn) return
-          // No "await": the sign-up finishes straight away instead of waiting for the email.
-          // .catch() means a failed email is logged, but never breaks the sign-up.
+          // No "await": the sign-up finishes straight away instead of waiting for Resend.
+          // .catch() means a failure is logged, but never breaks the sign-up.
           sendMarketingOptInEmail(user).catch((error) => console.error('Marketing opt-in email failed:', error.message))
+          addSubscriberToList(user).catch((error) => console.error('Adding to subscribers list failed:', error.message))
         },
       },
     },

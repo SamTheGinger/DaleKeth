@@ -1,13 +1,12 @@
-// Sending emails, through Resend (resend.com). Used by auth.js when a new account opts in to marketing.
-//
-// The "from" address is Resend's shared test sender (onboarding@resend.dev). That works without
-// setting up a domain, but ONLY for sending to the email address the Resend account belongs to,
-// which is fine here: these emails only ever go to the photographer (MARKETING_NOTIFY_EMAIL).
+// Emails, through Resend (resend.com). Used by auth.js when a new account ticks the marketing box:
+//   1. sendMarketingOptInEmail()  tells the photographer about the new subscriber.
+//   2. addSubscriberToList()      adds them to the subscribers list (a Resend "segment").
+// Bulk emails to that list are written and sent from the Resend dashboard (Broadcasts), which adds an
+// unsubscribe link to every email and stops emailing anyone who unsubscribes.
 import { Resend } from 'resend'
-import { MARKETING_NOTIFY_EMAIL, RESEND_API_KEY } from './config.js'
+import { EMAIL_FROM, MARKETING_NOTIFY_EMAIL, RESEND_API_KEY, RESEND_SEGMENT_ID } from './config.js'
 
-const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
-const FROM = 'Aurora Photography <onboarding@resend.dev>'
+export const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 
 // Names and emails are typed by visitors, so they're "escaped" before going into the email's HTML.
 // Otherwise someone could sign up with a name like <a href="...">click me</a> and put a link in the email.
@@ -25,7 +24,7 @@ export async function sendMarketingOptInEmail(user) {
 
   // Resend gives back { data, error } instead of throwing, so we check error ourselves.
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: EMAIL_FROM,
     to: MARKETING_NOTIFY_EMAIL,
     replyTo: user.email, // Pressing "Reply" in your inbox writes straight to the new subscriber.
     subject: `New email subscriber: ${user.name}`,
@@ -35,4 +34,33 @@ export async function sendMarketingOptInEmail(user) {
   })
   if (error) throw new Error(`Resend: ${error.message}`)
   console.log(`Marketing opt-in email sent for ${user.email}.`)
+}
+
+// Adds one person to the subscribers list in Resend, so they get the bulk emails (Broadcasts).
+// Safe to call again for the same person. It NEVER re-subscribes someone who clicked "unsubscribe"
+// in an email: Resend remembers that on the contact, and we leave existing contacts' choice alone.
+export async function addSubscriberToList(user, segmentId = RESEND_SEGMENT_ID) {
+  if (!resend || !segmentId) {
+    console.warn(`RESEND_API_KEY or RESEND_SEGMENT_ID is not set, so ${user.email} was not added to the subscribers list.`)
+    return 'skipped'
+  }
+
+  // Already a contact in Resend? Then only make sure they're in the list; don't change "unsubscribed".
+  const existing = await resend.contacts.get(user.email)
+  if (existing.data) {
+    if (existing.data.unsubscribed) return 'unsubscribed earlier, left alone'
+    const { error } = await resend.contacts.segments.add({ email: user.email, segmentId })
+    if (error && !/already/i.test(error.message)) throw new Error(`Resend: ${error.message}`)
+    return 'already a contact, on the list'
+  }
+
+  // New to Resend: create them, straight into the list.
+  const { error } = await resend.contacts.create({
+    email: user.email,
+    firstName: user.name,
+    unsubscribed: false,
+    segments: [{ id: segmentId }],
+  })
+  if (error) throw new Error(`Resend: ${error.message}`)
+  return 'added'
 }
