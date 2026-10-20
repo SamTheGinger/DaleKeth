@@ -39,7 +39,11 @@ function Footer() {
         <div className="min-w-0">
           <h3 className="mb-4 text-[2rem] text-muted">Say Hello.</h3>
           <p className="mb-2 font-body text-base text-accent">
-            <a href="mailto:photographer@aurora.com" className="transition-colors hover:text-muted">photographer@aurora.com</a>
+            {/* "Email Me" opens the visitor's email app with a new message to sam@bluvibe.co.za. */}
+            <a href="mailto:sam@bluvibe.co.za" className="transition-colors hover:text-muted">Email Me</a>
+            {/* The address itself in small grey text underneath, for anyone whose device has no email app set up:
+                they can still read it or copy it. block = its own line; select-all = one tap/click selects the whole address. */}
+            <span className="mt-1 block text-sm text-muted select-all">sam@bluvibe.co.za</span>
           </p>
           <p className="mb-2 font-body text-base text-accent">Durban, South Africa</p>
         </div>
