@@ -1,11 +1,11 @@
-import navLinks from '../data/navLinks.js' // The menu links, shared with the Header.
+import { allNavLinks } from '../data/navLinks.js' // Every menu link in one flat list (no View drop-down), shared with the Header.
 
 // The footer at the bottom of every page.
 // Mobile-first: one column on phones, two from 640px (sm:), three from 900px (md:, the brand column twice as wide).
 function Footer() {
   // The footer IS the Contact section, so it doesn't need a link to itself.
   // .filter() keeps every link except the one whose href is '#contact'.
-  const footerLinks = navLinks.filter((link) => link.href !== '#contact')
+  const footerLinks = allNavLinks.filter((link) => link.href !== '#contact')
 
   return (
     // id="contact" is what the menu's "Contact" link (#contact) jumps to.
