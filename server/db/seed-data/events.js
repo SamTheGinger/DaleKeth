@@ -1,5 +1,5 @@
 // Upcoming events, such as live art installations.
-// The Events section and EventPage component read this list.
+// Seed data: `npm run db:seed` copies this list into the events table, and the site reads it from GET /api/events.
 // To add an event, copy one of the { } objects below and change the values.
 //
 //   id          a unique number. The booking page link uses it (#/event/1).
@@ -52,4 +52,4 @@ const events = [
   },
 ]
 
-export default events // Lets other files load this list with: import events from '../data/events.js'
+export default events // Lets other files load this list with: import events from './seed-data/events.js' (see db/seed.js)

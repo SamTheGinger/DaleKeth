@@ -4,6 +4,7 @@
 // loading a new page, and the browser's Back and Forward buttons still work with it.
 // We use two kinds of hash:
 //   #/gallery/3   starts with #/  -> a separate page (here: the gallery for photo 3)
+//   #/signin      the same, with no number -> the Sign In page (id comes out as NaN, "not a number", and isn't used)
 //   #portfolio    no slash        -> the home page, scrolled to the section with id="portfolio"
 //
 // A "hook" is a reusable function that uses React features like useState.

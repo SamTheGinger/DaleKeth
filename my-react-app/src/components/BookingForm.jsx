@@ -1,18 +1,22 @@
-import { useState } from 'react' // useState remembers whether the form has been sent.
-import { inputClasses, labelClasses, submitClasses, thankYouClasses } from './formStyles.js' // Shared form styles.
+import { errorClasses, inputClasses, labelClasses, submitClasses, thankYouClasses } from './formStyles.js' // Shared form styles.
+import { apiFetch } from '../utils/api.js' // Sends the booking to the server.
+import { authClient } from '../utils/authClient.js' // Who is signed in (to fill in their name and email).
+import useSubmit from '../utils/useSubmit.js' // Sends the form and remembers how it went.
 
 // The "Book Your Photoshoot" form at the bottom of the home page.
-// NOTE: it doesn't send anywhere yet; it only shows a thank-you message.
-// To actually receive bookings, connect a form service (for example Formspree or Netlify Forms).
+// The booking is saved in the database (POST /api/photoshoot-bookings).
 function BookingForm() {
-  const [client, setClient] = useState(null) // Who sent the form. null = not sent yet.
+  const user = authClient.useSession().data?.user // The signed-in user, or undefined.
 
   // Runs when "Book Your Photoshoot" is clicked and every required box is filled in.
-  function handleSubmit(event) {
-    event.preventDefault() // Stop the browser reloading the page.
-    const formData = new FormData(event.target) // Collects everything typed into the form.
-    setClient({ name: formData.get('name'), email: formData.get('email') }) // Remember who sent it, which shows the thank-you message.
-  }
+  // client = who sent it, once the server has saved it (null until then), which shows the thank-you message.
+  const { handleSubmit, isSending, error, result: client } = useSubmit(async (form) => {
+    await apiFetch('/api/photoshoot-bookings', {
+      method: 'POST',
+      body: { name: form.name, email: form.email, phone: form.number, style: form['photoshoot-style'] },
+    })
+    return form
+  })
 
   return (
     // id="book" is what the menu's "Book" link (#book) jumps to.
@@ -31,16 +35,17 @@ function BookingForm() {
 
       {/* Show the form until it's sent, then the thank-you message instead. */}
       {client === null ? (
-        <form onSubmit={handleSubmit}>
+        // key = start the form afresh when someone signs in, so their name and email (defaultValue) get filled in.
+        <form key={user?.id ?? 'guest'} onSubmit={handleSubmit}>
           {/* htmlFor links each label to the box with the same id, so clicking the label selects the box.
               required = the browser won't send the form while this box is empty.
               autoComplete = lets the browser offer to fill in saved details. */}
           <label htmlFor="name" className={labelClasses}>Name:</label>
-          <input type="text" id="name" name="name" placeholder="Enter your name" autoComplete="name" required className={inputClasses} />
+          <input type="text" id="name" name="name" placeholder="Enter your name" autoComplete="name" required defaultValue={user?.name} className={inputClasses} />
 
           <label htmlFor="email" className={labelClasses}>Email:</label>
           {/* type="email" = the browser checks it looks like an email address. */}
-          <input type="email" id="email" name="email" placeholder="Enter your email" autoComplete="email" required className={inputClasses} />
+          <input type="email" id="email" name="email" placeholder="Enter your email" autoComplete="email" required defaultValue={user?.email} className={inputClasses} />
 
           <label htmlFor="number" className={labelClasses}>Cellphone Number:</label>
           {/* type="tel" = phones show a number keypad. */}
@@ -59,7 +64,11 @@ function BookingForm() {
             <option value="portrait">Portrait</option>
           </select>
 
-          <button type="submit" className={submitClasses}>Book Your Photoshoot</button>
+          {error && <p role="alert" className={errorClasses}>{error.message}</p>}
+
+          <button type="submit" disabled={isSending} className={submitClasses}>
+            {isSending ? 'Sending…' : 'Book Your Photoshoot'}
+          </button>
         </form>
       ) : (
         // role="status" makes screen readers announce the message when it appears.

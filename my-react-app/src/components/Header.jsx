@@ -1,10 +1,27 @@
-import { useEffect, useState } from 'react' // useState remembers if the menu is open; useEffect sets up keyboard/screen-size listeners.
+import { useEffect, useRef, useState } from 'react' // useState remembers if the menu is open; useEffect sets up listeners; useRef points at the header.
 import navLinks from '../data/navLinks.js' // The list of menu links.
+import { authClient } from '../utils/authClient.js' // Tells us who (if anyone) is signed in.
 
 // The sticky top bar, shown on every page.
 // On screens narrower than 900px the links fold away behind a "hamburger" button (☰).
 // From 900px up (md:) the links sit in a row and the button is hidden.
+// The last item is "Sign In" for visitors, or "Sign Out" once someone is signed in.
 function Header() {
+  const { data: session, isPending } = authClient.useSession() // session is null when nobody is signed in.
+  const headerRef = useRef(null) // Gives us the real <header> element so we can measure it.
+
+  // The header's height changes with the screen width (and whether the links fit on one row beside the logo).
+  // Whenever it changes, tell the browser to leave exactly that much room (plus a little) above a section
+  // when a menu link scrolls to it, so the sticky header never covers the section's heading.
+  // (index.css has a fixed fallback for the first moment before this runs.)
+  useEffect(() => {
+    const header = headerRef.current
+    const observer = new ResizeObserver(() => {
+      document.documentElement.style.scrollPaddingTop = `${header.offsetHeight + 16}px`
+    })
+    observer.observe(header) // ResizeObserver calls the function above now, and every time the header's size changes.
+    return () => observer.disconnect()
+  }, [])
   // isMenuOpen = true when the phone menu is showing. It starts closed (false).
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -36,10 +53,21 @@ function Header() {
   // rounded-sm = slightly rounded ends, bg-accent = gold, transition = animates smoothly when it changes.
   const barClasses = 'block h-0.5 w-full rounded-sm bg-accent transition duration-200'
 
+  // The Sign In link and Sign Out button look the same: a small gold outline "pill".
+  // w-full on phones (an easy-to-tap row), md:w-auto = only as wide as its text on desktop.
+  const authClasses =
+    'my-3 inline-block w-full cursor-pointer rounded-full border-2 border-accent px-4 py-1.5 text-center font-body text-base leading-tight font-semibold whitespace-nowrap text-accent transition-colors hover:bg-accent/15 md:my-0 md:w-auto lg:text-lg'
+
+  async function handleSignOut() {
+    setIsMenuOpen(false)
+    await authClient.signOut() // Deletes the session on the server and clears the cookie. useSession() then updates the whole site.
+    window.location.hash = '#hero'
+  }
+
   return (
     // sticky + top-0 = the header stays stuck to the top of the screen while you scroll.
     // z-10 = it sits on top of the page content. border-b-2 border-muted = a grey line underneath.
-    <header className="sticky top-0 z-10 border-b-2 border-muted bg-background">
+    <header ref={headerRef} className="sticky top-0 z-10 border-b-2 border-muted bg-background">
       {/* <nav> marks this as the main menu.
           relative = the phone menu (absolute, below) is positioned against this box.
           flex + items-center + justify-between = logo on the left, button/links on the right, vertically centred.
@@ -94,6 +122,27 @@ function Header() {
               </a>
             </li>
           ))}
+
+          {/* Sign In / Sign Out. Nothing is shown for the split second while we check (isPending), so it doesn't flicker. */}
+          {!isPending && (
+            <li className="border-t border-muted/25 md:border-0">
+              {session ? (
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  title={`Signed in as ${session.user.email}`} // Shown when you hover over the button.
+                  aria-label={`Sign out (signed in as ${session.user.email})`}
+                  className={authClasses}
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <a href="#/signin" onClick={() => setIsMenuOpen(false)} className={authClasses}>
+                  Sign In
+                </a>
+              )}
+            </li>
+          )}
         </ul>
       </nav>
     </header>

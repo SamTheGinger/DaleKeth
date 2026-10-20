@@ -3,7 +3,19 @@
 A responsive, dark-themed portfolio, art shop and event-booking site for a portrait and landscape photographer.
 Started for the **Mayerfeld Frontend Developer Practicum** as a static HTML/CSS landing page, and now rebuilt with **React 19**, **Vite** and **Tailwind CSS 4**.
 
-## What's new since the last README update
+**Live site:** _coming soon_ · **API:** _coming soon_
+
+## Week 3: a real backend
+
+- **Client + server.** `my-react-app/` is the React frontend; the new `server/` folder is a **Node.js + Express 5** API.
+- **Postgres database (Neon).** Photos, gallery images, artworks and events now live in database tables instead of JavaScript files. A **seed script** (`npm run db:seed`) loads the old hardcoded data into it.
+- **A real API.** The React app loads everything with `fetch` from routes such as `GET /api/photos` (see the table below).
+- **Authentication with [Better Auth](https://better-auth.com).** Sign up, sign in and sign out with email + password. Passwords are hashed and sessions are kept in an httpOnly cookie. The header shows **Sign In** or **Sign Out**.
+- **Favourites are saved to your account** and come back when you sign in on any device.
+- **The forms work.** Photoshoot bookings, artwork purchase requests and event bookings are saved in the database. Booking an event takes the spots off, and two people can never book the same last spot.
+- **Secrets stay out of git.** The database URL and auth secret live in `server/.env`, which is ignored (`server/.env.example` is the empty template).
+
+## What's new since the previous README update
 
 - **Rebuilt in React + Tailwind.** The old `index.html`, `styles.css` and `nav.js` were replaced by a Vite React app in `my-react-app/`. The original colours, fonts and 900px breakpoint were carried over as Tailwind theme tokens.
 - **Multiple pages** using a small hash router (`#/gallery/3`, `#/artwork/1`, `#/event/2`), with working Back/Forward buttons and a "Page Not Found" page.
@@ -30,31 +42,87 @@ Started for the **Mayerfeld Frontend Developer Practicum** as a static HTML/CSS 
 ## Project structure
 
 ```
-my-react-app/
+my-react-app/                  THE CLIENT (deployed to Vercel)
 ├── index.html                 Page shell that loads the React app
-├── vite.config.js             Vite settings (React + Tailwind plugins)
+├── vite.config.js             Vite settings (React + Tailwind plugins, /api forwarded to the server)
+├── vercel.json                On Vercel, forwards /api/* to the Railway server
 ├── public/Images/             All photos, grouped by series (Copper, Ebony, Charcoal-Art, Events, ...)
 └── src/
     ├── main.jsx               Starts the app
     ├── App.jsx                Picks which page to show; holds favourites and likes
     ├── index.css              Tailwind import, colour/font tokens and base styles
     ├── components/            Header, Hero, About, Portfolio, Shop, Events, BookingForm, Footer and smaller cards/buttons
-    ├── pages/                 HomePage, GalleryPage, ArtworkPage, EventPage, NotFoundPage
-    ├── data/                  photos.js, artworks.js, events.js, navLinks.js (the site's content)
-    └── utils/                 format.js (rand prices, dates) and useHashRoute.js (the router)
+    ├── pages/                 HomePage, GalleryPage, ArtworkPage, EventPage, AuthPage, NotFoundPage
+    ├── data/                  navLinks.js (the menu)
+    └── utils/                 api.js (fetch + useApi), authClient.js (Better Auth), useSubmit.js (forms),
+                               format.js (rand prices, dates) and useHashRoute.js (the router)
+
+server/                        THE API (deployed to Railway)
+├── .env.example               The settings it needs (copy to .env; .env is never committed)
+├── src/
+│   ├── index.js               Starts the server
+│   ├── app.js                 Express app: middleware, routes and error handling
+│   ├── auth.js                Better Auth setup + requireUser / optionalUser middleware
+│   ├── db.js                  Postgres connection pool, query() and transaction()
+│   ├── validate.js            Checks what the browser sent
+│   └── routes/                catalog.js (photos/artworks/events), favorites.js, bookings.js
+└── db/
+    ├── schema.sql             The site's tables
+    ├── migrate.js             npm run db:migrate: creates Better Auth's tables, then schema.sql
+    ├── seed.js                npm run db:seed: loads seed-data/ into the database
+    └── seed-data/             photos.js, artworks.js, events.js (the content that used to be hardcoded)
 ```
+
+## Database
+
+| Table | What's in it |
+|---|---|
+| `user`, `session`, `account`, `verification` | Created and managed by Better Auth (accounts, hashed passwords, sessions) |
+| `photos`, `photo_images` | Portfolio series and the images in each one, in order |
+| `artworks` | The shop: price in rand and how many are `available` |
+| `events` | Upcoming events and how many `spots` are left (can never go below 0) |
+| `favorites` | Which photo series each user has favourited |
+| `purchase_requests`, `event_bookings`, `photoshoot_bookings` | What people send through the three forms (linked to their account if signed in) |
+
+## API
+
+| Route | Sign-in needed? | What it does |
+|---|---|---|
+| `GET /api/health` | No | `{ "ok": true }` if the server is running |
+| `GET /api/photos` · `GET /api/photos/:id` | No | Portfolio series with their gallery images |
+| `GET /api/artworks` · `GET /api/artworks/:id` | No | Artwork for sale |
+| `GET /api/events` · `GET /api/events/:id` | No | Upcoming events, soonest first |
+| `POST /api/artworks/:id/purchase-requests` | No | `{ quantity, name, email }` |
+| `POST /api/events/:id/bookings` | No | `{ spots, name, email, phone }`; replies with `spotsLeft` |
+| `POST /api/photoshoot-bookings` | No | `{ name, email, phone, style }` |
+| `GET /api/favorites` | Yes | The signed-in user's favourite photo ids, e.g. `[3, 11]` |
+| `PUT` / `DELETE /api/favorites/:photoId` | Yes | Add / remove a favourite |
+| `/api/auth/*` | | Better Auth: `sign-up/email`, `sign-in/email`, `sign-out`, `get-session` |
 
 ## Run it locally
 
-You need [Node.js](https://nodejs.org/) installed.
+You need [Node.js](https://nodejs.org/) 20 or newer and a free [Neon](https://neon.tech) Postgres database.
+
+**1. The server** (first terminal):
+
+```bash
+cd server
+npm install                 # first time only
+cp .env.example .env        # then open .env and fill in DATABASE_URL and BETTER_AUTH_SECRET
+npm run db:migrate          # create the tables (safe to run again)
+npm run db:seed             # load the photos, artworks and events (safe to run again)
+npm run dev                 # API on http://localhost:3000; restarts when you save
+```
+
+**2. The client** (second terminal):
 
 ```bash
 cd my-react-app
 npm install      # first time only
-npm run dev      # start the development server, then open the link it prints
+npm run dev      # open http://localhost:5173. Vite forwards /api to the server.
 ```
 
-Other commands:
+Other client commands:
 
 | Command | What it does |
 |---|---|
@@ -66,11 +134,22 @@ Other commands:
 
 | To change… | Edit |
 |---|---|
-| Colours, fonts, breakpoint | The `@theme` block in `src/index.css` |
-| Portfolio photos and gallery series | `src/data/photos.js` (images go in `public/Images/`) |
-| Artwork, prices and stock | `src/data/artworks.js` |
-| Events, dates and spots | `src/data/events.js` |
-| Menu links | `src/data/navLinks.js` |
+| Colours, fonts, breakpoint | The `@theme` block in `my-react-app/src/index.css` |
+| Portfolio photos and gallery series | `server/db/seed-data/photos.js` then `npm run db:seed` (images go in `my-react-app/public/Images/`) |
+| Artwork, prices and stock | `server/db/seed-data/artworks.js` then `npm run db:seed` |
+| Events, dates and spots | `server/db/seed-data/events.js` then `npm run db:seed` |
+| Menu links | `my-react-app/src/data/navLinks.js` |
+
+Re-seeding updates titles, prices, images and so on, but never resets stock (`available`, `spots`), so it won't undo real bookings. To change stock, edit it in the Neon SQL editor.
+
+## Deploying
+
+The API runs on **Railway** and the site on **Vercel**. Vercel forwards every `/api/...` request to Railway (`my-react-app/vercel.json`), so the browser only ever talks to the Vercel address. The sign-in cookie is then a normal first-party cookie, which browsers don't block.
+
+1. **Database:** run `npm run db:migrate` and `npm run db:seed` in `server/` with `DATABASE_URL` pointing at Neon.
+2. **Railway:** New Project → Deploy from GitHub repo → this repo. In the service's **Settings**, set **Root Directory** to `server`. Under **Variables** add `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (your Vercel URL, e.g. `https://aurora-photography.vercel.app`) and `CLIENT_ORIGINS` (the same URL). Under **Networking**, click **Generate Domain**.
+3. **Vercel:** put the Railway domain into `my-react-app/vercel.json`, push, then Add New → Project → this repo, with **Root Directory** `my-react-app`. Vite is detected automatically.
+4. Open `https://YOUR-SITE.vercel.app/api/health`. It should say `{"ok":true}`.
 
 ## Fonts
 
@@ -78,8 +157,10 @@ Other commands:
 
 ## Next steps
 
-- Connect the booking, purchase and event forms to a service (for example Formspree or Netlify Forms). They only show a thank-you message for now.
-- Save favourites and likes (they reset when the page is refreshed).
+- Email the photographer (and the customer) when a form is sent, for example with Resend.
+- Take payments for artwork and event tickets (for example PayFast, Yoco or Stripe).
+- Save gallery likes to the account too (favourites are saved; likes still reset on refresh).
+- An admin page for viewing bookings (for now, use the Neon dashboard's Tables view).
 - Update `CODE-WALKTHROUGH.md`, which still explains the old HTML/CSS version.
 
 ## Credits

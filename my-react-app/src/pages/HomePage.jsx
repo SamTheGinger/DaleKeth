@@ -6,15 +6,15 @@ import Shop from '../components/Shop.jsx' // The artwork-for-sale grid.
 import Events from '../components/Events.jsx' // Upcoming events.
 import BookingForm from '../components/BookingForm.jsx' // Photoshoot booking form.
 
-// Props (inputs from App.jsx): the favourites list and the function that changes it.
+// Props (inputs from App.jsx): the favourites list, the function that changes it, and whether someone is signed in.
 // HomePage doesn't use them itself; it just passes them on to Portfolio.
-function HomePage({ favoriteIds, onFavoriteChange }) {
+function HomePage({ favoriteIds, onFavoriteChange, isSignedIn }) {
   return (
     // <> and </> are a "fragment": a wrapper that groups elements without adding an extra box to the page.
     <>
       <Hero />
       <About />
-      <Portfolio favoriteIds={favoriteIds} onFavoriteChange={onFavoriteChange} />
+      <Portfolio favoriteIds={favoriteIds} onFavoriteChange={onFavoriteChange} isSignedIn={isSignedIn} />
       <Shop />
       <Events />
       <BookingForm />

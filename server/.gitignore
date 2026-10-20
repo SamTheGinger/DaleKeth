@@ -1,0 +1,11 @@
+# Installed packages: rebuilt from package.json with "npm install".
+node_modules
+
+# Secrets (database password, auth secret). NEVER commit these.
+# .env.example is the safe, empty template that IS committed.
+.env
+.env.*
+!.env.example
+
+*.log
+.neon

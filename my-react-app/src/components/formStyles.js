@@ -17,8 +17,12 @@ export const inputClasses =
 
 // Submit buttons: bg-accent = gold background, hover:bg-muted = grey when the mouse is over it,
 // active:scale-[0.98] = shrinks very slightly while being pressed, cursor-pointer = hand cursor.
+// disabled:* = while the form is being sent, the button is greyed out and can't be clicked again.
 export const submitClasses =
-  'mt-8 w-full cursor-pointer rounded bg-accent px-4 py-4 font-heading text-lg font-bold text-background transition-colors hover:bg-muted active:scale-[0.98]'
+  'mt-8 w-full cursor-pointer rounded bg-accent px-4 py-4 font-heading text-lg font-bold text-background transition-colors hover:bg-muted active:scale-[0.98] disabled:cursor-wait disabled:opacity-60'
+
+// The message shown above the submit button when the server says something went wrong.
+export const errorClasses = 'mt-6 rounded-lg border-2 border-red-400 p-3 font-body text-text'
 
 // The thank-you box shown after a form is sent: gold border, rounded corners, centred text.
 export const thankYouClasses = 'mt-6 rounded-lg border-2 border-accent p-5 text-center font-body text-text'

@@ -1,27 +1,35 @@
-import { useState } from 'react' // useState lets this page remember the quantity and whether the form was sent.
+import { useState } from 'react' // useState lets this page remember the quantity.
 import QuantityStepper from '../components/QuantityStepper.jsx' // The − 1 + control.
 import { formatPrice } from '../utils/format.js' // Turns 2400 into "R 2 400".
-import { inputClasses, labelClasses, submitClasses, thankYouClasses } from '../components/formStyles.js' // Shared form styles.
+import { errorClasses, inputClasses, labelClasses, submitClasses, thankYouClasses } from '../components/formStyles.js' // Shared form styles.
+import { apiFetch } from '../utils/api.js' // Sends the request to the server.
+import { authClient } from '../utils/authClient.js' // Who is signed in (to fill in their name and email).
+import useSubmit from '../utils/useSubmit.js' // Sends the form and remembers how it went.
 
 // The page that opens when an artwork card in the Shop is clicked.
 // It shows the artwork, its details and price, lets the buyer pick how many,
 // and has a short form to request the purchase.
 //
-// NOTE: this doesn't take payment. The form only shows a thank-you message for now.
+// The request is saved in the database (POST /api/artworks/:id/purchase-requests), linked to
+// the buyer's account if they're signed in. NOTE: this doesn't take payment.
 // To take real payments you'd connect a payment service (for example PayFast, Yoco or Stripe).
 //
 // Props (input from App.jsx):
-//   artwork  the artwork object for this page (from data/artworks.js).
+//   artwork  the artwork object for this page (loaded from GET /api/artworks/:id).
 function ArtworkPage({ artwork }) {
   const [quantity, setQuantity] = useState(1) // How many the buyer wants. Starts at 1.
-  const [buyer, setBuyer] = useState(null) // Who sent the form. null = not sent yet.
+  const user = authClient.useSession().data?.user // The signed-in user, or undefined.
+  const isSoldOut = artwork.available === 0
 
-  // Runs when the form's submit button is clicked (and every "required" box is filled in).
-  function handleSubmit(event) {
-    event.preventDefault() // Stop the browser's default action, which would reload the page and lose everything.
-    const formData = new FormData(event.target) // Collects everything typed into the form.
-    setBuyer({ name: formData.get('name'), email: formData.get('email') }) // Remember the name and email, which shows the thank-you message.
-  }
+  // Runs when the form is sent (and every "required" box is filled in).
+  // buyer = the name and email once the server has saved the request (null until then), which shows the thank-you message.
+  const { handleSubmit, isSending, error, result: buyer } = useSubmit(async (form) => {
+    await apiFetch(`/api/artworks/${artwork.id}/purchase-requests`, {
+      method: 'POST',
+      body: { quantity, name: form.name, email: form.email },
+    })
+    return form
+  })
 
   return (
     <section className="mx-auto w-full max-w-275 px-4 py-8 sm:px-6 sm:py-12">
@@ -57,8 +65,11 @@ function ArtworkPage({ artwork }) {
           </dl>
 
           {/* If buyer is still null (form not sent), show the form. Otherwise show the thank-you message. */}
-          {buyer === null ? (
-            <form onSubmit={handleSubmit} className="mt-8 rounded-lg bg-surface p-5 sm:p-8">
+          {isSoldOut ? (
+            <p className={thankYouClasses}>This piece has sold out.</p>
+          ) : buyer === null ? (
+            // key = start the form afresh when someone signs in, so their name and email (defaultValue) get filled in.
+            <form key={user?.id ?? 'guest'} onSubmit={handleSubmit} className="mt-8 rounded-lg bg-surface p-5 sm:p-8">
               {/* A label for the stepper. It's a <p> rather than <label> because the stepper is buttons, not a text box. */}
               <p className={labelClasses}>Quantity:</p>
               <QuantityStepper
@@ -75,12 +86,17 @@ function ArtworkPage({ artwork }) {
 
               {/* htmlFor (JSX's name for "for") links the label to the box with the same id, so clicking the label selects the box. */}
               <label htmlFor="buyer-name" className={labelClasses}>Name:</label>
-              <input type="text" id="buyer-name" name="name" placeholder="Enter your name" autoComplete="name" required className={inputClasses} />
+              <input type="text" id="buyer-name" name="name" placeholder="Enter your name" autoComplete="name" required defaultValue={user?.name} className={inputClasses} />
 
               <label htmlFor="buyer-email" className={labelClasses}>Email:</label>
-              <input type="email" id="buyer-email" name="email" placeholder="Enter your email" autoComplete="email" required className={inputClasses} />
+              <input type="email" id="buyer-email" name="email" placeholder="Enter your email" autoComplete="email" required defaultValue={user?.email} className={inputClasses} />
 
-              <button type="submit" className={submitClasses}>Request to Buy</button>
+              {/* role="alert" makes screen readers read the problem out straight away. */}
+              {error && <p role="alert" className={errorClasses}>{error.message}</p>}
+
+              <button type="submit" disabled={isSending} className={submitClasses}>
+                {isSending ? 'Sending…' : 'Request to Buy'}
+              </button>
             </form>
           ) : (
             // role="status" makes screen readers announce this message as soon as it appears.

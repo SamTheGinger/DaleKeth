@@ -1,6 +1,6 @@
 // Every photo in the portfolio grid on the home page.
 // This file is just a list of information. It shows nothing on screen by itself;
-// the Portfolio and GalleryPage components read it and turn it into cards and pages.
+// `npm run db:seed` copies it into the photos and photo_images tables, and the site reads it from GET /api/photos.
 //
 // Each item in the list is an "object": a group of named values inside { }.
 //   id       a unique number for the photo. The page link uses it (#/gallery/1).
@@ -9,7 +9,7 @@
 //   src      the cover image shown on the card. Paths start with / because the
 //            images live in the public/ folder, which is served from the site root.
 //   gallery  the series of images shown when the card is clicked.
-//            To add an image to a series, put the file in public/Images/ and add its path here.
+//            To add an image to a series, put the file in my-react-app/public/Images/, add its path here and run npm run db:seed.
 //            (For now these reuse the existing photos as placeholders.)
 const photos = [ // "const" makes a named box called photos; [ ] starts a list (an "array").
   {
@@ -99,4 +99,4 @@ const photos = [ // "const" makes a named box called photos; [ ] starts a list (
   },
 ] // ] closes the list.
 
-export default photos // Lets other files load this list with: import photos from '../data/photos.js'
+export default photos // Lets other files load this list with: import photos from './seed-data/photos.js' (see db/seed.js)

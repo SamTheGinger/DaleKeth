@@ -1,5 +1,6 @@
 import { useState } from 'react' // useState lets this component remember which filter button is selected.
-import photos from '../data/photos.js' // The list of all portfolio photos.
+import { useApi } from '../utils/api.js' // Loads data from the server.
+import LoadState from './LoadState.jsx' // "Loading…" / error message while the photos arrive.
 import PhotoCard from './PhotoCard.jsx' // The card used for each photo.
 
 // The names of the filter buttons, in the order they appear.
@@ -10,15 +11,20 @@ const filters = ['All', 'Portrait', 'Landscape', 'Favourites']
 // Props (inputs from App.jsx):
 //   favoriteIds       a list of the ids of every favourited photo, e.g. [1, 11].
 //   onFavoriteChange  a function that adds or removes an id from that list.
+//   isSignedIn        true when someone is signed in (favourites are saved to their account).
 // The favourites are kept in App.jsx rather than here, so they aren't lost when
 // you open a gallery page and come back.
-function Portfolio({ favoriteIds, onFavoriteChange }) {
+function Portfolio({ favoriteIds, onFavoriteChange, isSignedIn }) {
+  // Ask the server for every photo series. photos is null until the answer arrives.
+  const { data: photos, error, isLoading } = useApi('/api/photos')
+
   // activeFilter = which button is selected right now. It starts as 'All'.
   // setActiveFilter = the function that changes it (and makes React redraw the grid).
   const [activeFilter, setActiveFilter] = useState('All')
 
   // .filter() goes through every photo and keeps only the ones where the function returns true.
-  const visiblePhotos = photos.filter((photo) => {
+  // (photos ?? []) = use an empty list while photos is still null.
+  const visiblePhotos = (photos ?? []).filter((photo) => {
     if (activeFilter === 'All') return true // "All": keep every photo. (=== means "is exactly equal to".)
     if (activeFilter === 'Favourites') return favoriteIds.includes(photo.id) // Keep it only if its id is in the favourites list.
     return photo.category === activeFilter // 'Portrait' or 'Landscape': keep it if its category matches.
@@ -59,6 +65,7 @@ function Portfolio({ favoriteIds, onFavoriteChange }) {
       </div>
 
       {/* If at least one photo matches the filter, show the grid; otherwise show a friendly message. */}
+      <LoadState isLoading={isLoading} error={error}>
       {visiblePhotos.length > 0 ? (
         // The grid is mobile-first: the class with no prefix is for phones, then each prefix adds a change for bigger screens.
         // grid-cols-1 = 1 column on phones (max 26rem wide, centred), sm:grid-cols-2 = 2 columns from 640px,
@@ -75,8 +82,17 @@ function Portfolio({ favoriteIds, onFavoriteChange }) {
           ))}
         </div>
       ) : (
-        <p className="text-center font-body text-text">No favourites yet. Tap the heart on a photo to add it here.</p>
+        <p className="text-center font-body text-text">
+          {isSignedIn ? (
+            'No favourites yet. Tap the heart on a photo to add it here.'
+          ) : (
+            <>
+              <a href="#/signin" className="font-semibold text-accent underline hover:text-muted">Sign in</a> to save your favourite photos.
+            </>
+          )}
+        </p>
       )}
+      </LoadState>
     </section>
   )
 }

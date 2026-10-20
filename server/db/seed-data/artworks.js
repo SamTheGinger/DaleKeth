@@ -1,6 +1,6 @@
 // Every artwork for sale in the Shop grid on the home page.
-// Like photos.js, this is only information; the Shop and ArtworkPage components display it.
-// To sell a new piece, put its image in public/Images/ and add a new { } object to the list.
+// Seed data: `npm run db:seed` copies this list into the artworks table, and the site reads it from GET /api/artworks.
+// To sell a new piece, put its image in my-react-app/public/Images/, add a new { } object here and run npm run db:seed.
 //
 //   id          a unique number. The page link uses it (#/artwork/1).
 //   title       the artwork's name.
@@ -73,4 +73,4 @@ const artworks = [
   },
 ]
 
-export default artworks // Lets other files load this list with: import artworks from '../data/artworks.js'
+export default artworks // Lets other files load this list with: import artworks from './seed-data/artworks.js' (see db/seed.js)
