@@ -8,6 +8,7 @@ import catalogRoutes from './routes/catalog.js'
 import favoriteRoutes from './routes/favorites.js'
 import bookingRoutes from './routes/bookings.js'
 import subscriptionRoutes from './routes/subscription.js'
+import testimonialRoutes from './routes/testimonials.js'
 import { handleResendWebhook } from './routes/resendWebhook.js'
 
 const app = express()
@@ -41,6 +42,7 @@ app.use('/api', catalogRoutes)
 app.use('/api', bookingRoutes)
 app.use('/api/favorites', favoriteRoutes)
 app.use('/api/subscription', subscriptionRoutes)
+app.use('/api/testimonials', testimonialRoutes)
 
 // Any other /api address.
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }))
