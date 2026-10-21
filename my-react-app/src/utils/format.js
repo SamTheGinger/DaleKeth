@@ -23,8 +23,3 @@ export function formatDate(isoDate) {
     timeZone: 'UTC',
   })
 }
-
-// Turns '2026-09-14' into "September 2026" (used under each testimonial).
-export function formatMonthYear(isoDate) {
-  return new Date(isoDate).toLocaleDateString('en-ZA', { month: 'long', year: 'numeric', timeZone: 'UTC' })
-}

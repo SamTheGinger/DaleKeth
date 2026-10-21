@@ -10,8 +10,7 @@
     "dev": "node --watch src/index.js",
     "db:migrate": "node db/migrate.js",
     "db:seed": "node db/seed.js",
-    "subscribers:sync": "node db/sync-subscribers.js",
-    "testimonials": "node db/testimonials.js"
+    "subscribers:sync": "node db/sync-subscribers.js"
   },
   "engines": {
     "node": ">=22"

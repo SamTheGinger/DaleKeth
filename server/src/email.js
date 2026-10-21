@@ -1,7 +1,6 @@
 // Emails, through Resend (resend.com). Used when someone opts in to marketing emails:
 //   1. sendMarketingOptInEmail()  tells the photographer about the new subscriber.
 //   2. addSubscriberToList()      adds them to the subscribers list (a Resend "segment").
-// and when someone leaves a review: sendNewTestimonialEmail() asks the photographer to approve it.
 // Bulk emails to that list are written and sent from the Resend dashboard (Broadcasts), which adds an
 // unsubscribe link to every email and stops emailing anyone who unsubscribes.
 import { Resend } from 'resend'
@@ -76,31 +75,6 @@ export async function addSubscriberToList(user, { segmentId = RESEND_SEGMENT_ID,
   })
   if (error) throw new Error(`Resend: ${error.message}`)
   return 'added'
-}
-
-// Tells the photographer a new review is waiting for approval (see routes/testimonials.js).
-export async function sendNewTestimonialEmail(user, testimonial) {
-  if (!resend) {
-    console.warn(`RESEND_API_KEY is not set, so no email was sent for new testimonial ${testimonial.id}.`)
-    return
-  }
-  const stars = '★'.repeat(testimonial.rating) + '☆'.repeat(5 - testimonial.rating)
-  const approve = `npm run testimonials -- approve ${testimonial.id}`
-  const { error } = await resend.emails.send({
-    from: EMAIL_FROM,
-    to: MARKETING_NOTIFY_EMAIL,
-    replyTo: user.email, // Pressing "Reply" writes straight to the reviewer.
-    subject: `New review waiting for approval: ${stars} from ${user.name}`,
-    text: `${user.name} (${user.email}) left a ${testimonial.rating}-star review on Aurora Photography:\n\n"${testimonial.message}"\n\nIt isn't on the site yet. To show it, run this in the server folder:\n${approve}\n(or "npm run testimonials" to see every review that's waiting).`,
-    html: `<p><strong>${escapeHtml(user.name)}</strong> (${escapeHtml(user.email)}) left a review on Aurora Photography:</p>
-           <p style="font-size:20px;color:#d4a373">${stars}</p>
-           <blockquote style="margin:0 0 16px;padding-left:12px;border-left:3px solid #d4a373">${escapeHtml(testimonial.message)}</blockquote>
-           <p>It isn&rsquo;t on the site yet. To show it, run this in the server folder:</p>
-           <p><code>${escapeHtml(approve)}</code></p>
-           <p style="color:#777">Or run <code>npm run testimonials</code> to see every review that&rsquo;s waiting.</p>`,
-  })
-  if (error) throw new Error(`Resend: ${error.message}`)
-  console.log(`New testimonial email sent for review ${testimonial.id}.`)
 }
 
 // Has this person clicked "unsubscribe" in one of the bulk emails? Resend keeps track of that.

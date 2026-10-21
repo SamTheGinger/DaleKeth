@@ -9,7 +9,6 @@ import { transaction, pool } from '../src/db.js'
 import photos from './seed-data/photos.js'
 import artworks from './seed-data/artworks.js'
 import events from './seed-data/events.js'
-import testimonials from './seed-data/testimonials.js'
 
 // A few paths in photos.js were missing their leading slash ('Images/...'), which only worked
 // on the home page. Fix them on the way in so every path is '/Images/...'.
@@ -61,19 +60,7 @@ await transaction(async (client) => {
     )
   }
   await resetIdCounter(client, 'events')
-
-  for (const t of testimonials) {
-    await client.query(
-      `INSERT INTO testimonials (id, name, rating, message, created_at, approved) VALUES ($1, $2, $3, $4, $5, true)
-       ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, rating = EXCLUDED.rating, message = EXCLUDED.message,
-         created_at = EXCLUDED.created_at, approved = true`,
-      [t.id, t.name, t.rating, t.message, t.createdAt],
-    )
-  }
-  await resetIdCounter(client, 'testimonials')
 })
 
-console.log(
-  `Seeded ${photos.length} photo series, ${artworks.length} artworks, ${events.length} events and ${testimonials.length} testimonials.`,
-)
+console.log(`Seeded ${photos.length} photo series, ${artworks.length} artworks and ${events.length} events.`)
 await pool.end()

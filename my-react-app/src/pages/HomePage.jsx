@@ -5,8 +5,7 @@ import Portfolio from '../components/Portfolio.jsx' // The filterable photo grid
 import Shop from '../components/Shop.jsx' // The artwork-for-sale grid.
 import Events from '../components/Events.jsx' // Upcoming events.
 import BookingForm from '../components/BookingForm.jsx' // Photoshoot booking form.
-import SubscribeSection from '../components/SubscribeSection.jsx' // Small 'Stay in the loop' email sign-up.
-import Testimonials from '../components/Testimonials.jsx' // Reviews with star ratings, and a form to add one. Last on the page.
+import SubscribeSection from '../components/SubscribeSection.jsx' // Small 'Stay in the loop' email sign-up, last on the page.
 
 // Props (inputs from App.jsx): the favourites list, the function that changes it, and whether someone is signed in.
 // HomePage doesn't use them itself; it just passes them on to Portfolio.
@@ -21,7 +20,6 @@ function HomePage({ favoriteIds, onFavoriteChange, isSignedIn }) {
       <Events />
       <BookingForm />
       <SubscribeSection />
-      <Testimonials />
     </>
   )
 }
