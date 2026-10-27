@@ -10,6 +10,7 @@ import ArtworkPage from './pages/ArtworkPage.jsx' // An artwork's sale page.
 import EventPage from './pages/EventPage.jsx' // An event's booking page.
 import AuthPage from './pages/AuthPage.jsx' // Sign in / create account.
 import SubscriptionPage from './pages/SubscriptionPage.jsx' // "Your Subscription": what you get, unsubscribe / subscribe.
+import OrderPage from './pages/OrderPage.jsx' // Where Stripe sends buyers after paying: shows the order's status.
 import NotFoundPage from './pages/NotFoundPage.jsx' // Shown for addresses that don't exist.
 import useHashRoute from './utils/useHashRoute.js' // Our tiny router: tells us which page the address points to.
 import { apiFetch, useApi } from './utils/api.js' // Talking to the server.
@@ -123,6 +124,8 @@ function App() {
     )
   } else if (route.page === 'event') {
     page = <ItemPage path={`/api/events/${route.id}`}>{(event) => <EventPage key={event.id} event={event} />}</ItemPage>
+  } else if (route.page === 'order') {
+    page = <OrderPage key={route.id} orderId={route.id} /> // #/order/5
   } else if (route.page === 'subscription') {
     page = <SubscriptionPage /> // #/subscription
   } else if (route.page === 'signin' || route.page === 'signup') {

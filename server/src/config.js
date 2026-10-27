@@ -36,3 +36,9 @@ export const RESEND_SEGMENT_ID = process.env.RESEND_SEGMENT_ID || ''
 export const SITE_URL = BETTER_AUTH_URL.replace(/\/$/, '')
 // The secret Resend uses to sign its webhook calls (Resend → Webhooks), so we can check they're genuine.
 export const RESEND_WEBHOOK_SECRET = process.env.RESEND_WEBHOOK_SECRET || ''
+// Stripe (stripe.com), for paying for artworks with Stripe Checkout. Use the TEST keys (sk_test_...): the money is fake.
+// STRIPE_SECRET_KEY is from Stripe → Developers → API keys. STRIPE_WEBHOOK_SECRET (whsec_...) is printed by
+// `stripe listen` locally, or shown on the webhook endpoint you add in Stripe for the live site.
+// Both are optional: without them the server still runs, and Buy Now answers "Payments aren't set up yet".
+export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || ''
+export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || ''
