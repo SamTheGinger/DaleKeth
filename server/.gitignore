@@ -9,3 +9,5 @@ node_modules
 
 *.log
 .neon
+
+.vercel # Links this folder to the aurora-photography-api project on Vercel (made by `vercel link`).
