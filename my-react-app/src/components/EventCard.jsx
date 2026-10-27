@@ -1,6 +1,6 @@
 import { formatDate, formatPrice } from '../utils/format.js' // Helpers for nicely written dates and prices.
 
-// One upcoming event in the Events section, with a "Book a spot" button.
+// One upcoming event in the Events section, with a "Buy Spots" button ("Reserve a Spot" for free events).
 //
 // Props (inputs from Events.jsx):
 //   event  one object from data/events.js ({ id, title, date, time, venue, price, spots, src, description }).
@@ -37,12 +37,13 @@ function EventCard({ event }) {
             {event.price > 0 && ' per spot'} {/* Only add " per spot" when the event isn't free. */}
             <span className="text-muted"> · {event.spots} spots left</span>
           </p>
-          {/* A link that looks like a button. It goes to #/event/1 (etc.), which App.jsx turns into the booking page. */}
+          {/* A link that looks like a button. It goes to #/event/1 (etc.), which App.jsx turns into the event's page,
+              where paid spots are bought with Stripe and free ones reserved. */}
           <a
             href={`#/event/${event.id}`}
             className="rounded-full bg-accent px-6 py-2.5 font-body font-semibold text-background transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
           >
-            Book a Spot
+            {event.price === 0 ? 'Reserve a Spot' : 'Buy Spots'}
           </a>
         </div>
       </div>

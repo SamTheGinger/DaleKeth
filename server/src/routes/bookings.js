@@ -1,7 +1,9 @@
 // The three forms on the site now save to the database instead of only showing a thank-you message.
 // Visitors don't have to be signed in; when they are, the request is linked to their account.
 //   POST /api/artworks/:id/purchase-requests  { quantity, name, email }
-//   POST /api/events/:id/bookings             { spots, name, email, phone }  (takes the spots off the event)
+//   POST /api/events/:id/bookings             { spots, name, email, phone }  (FREE events only; takes the spots off)
+// Spots for paid events are bought with Stripe instead (routes/orders.js), so this route refuses them:
+// otherwise anyone could call it directly and take paid spots without paying.
 //   POST /api/photoshoot-bookings             { name, email, phone, style }
 import { Router } from 'express'
 import { optionalUser } from '../auth.js'
@@ -38,12 +40,13 @@ router.post('/events/:id/bookings', async (req, res) => {
     // Two people booking the last spot at the same moment can't both succeed: Postgres runs
     // these updates one after the other, and the second finds "spots >= $1" is no longer true.
     const updated = await client.query(
-      'UPDATE events SET spots = spots - $1 WHERE id = $2 AND spots >= $1 RETURNING spots',
+      'UPDATE events SET spots = spots - $1 WHERE id = $2 AND spots >= $1 AND price = 0 RETURNING spots',
       [spots, eventId],
     )
     if (updated.rowCount === 0) {
-      const exists = await client.query('SELECT spots FROM events WHERE id = $1', [eventId])
+      const exists = await client.query('SELECT spots, price FROM events WHERE id = $1', [eventId])
       if (exists.rowCount === 0) throw new HttpError(404, 'Not found.')
+      if (exists.rows[0].price > 0) throw new HttpError(409, 'Spots for this event are bought with Buy Now.')
       throw new HttpError(409, `Sorry, only ${exists.rows[0].spots} spots are left.`)
     }
     const inserted = await client.query(

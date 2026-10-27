@@ -4,32 +4,32 @@
 //   Production:  an endpoint in Stripe (Developers → Webhooks) pointing at the live API, with the events
 //                checkout.session.completed, checkout.session.async_payment_succeeded and checkout.session.expired.
 //
-// This is the ONLY code that marks an order as 'paid'. It's also where the artwork's stock goes down,
-// so a piece is only taken off the shelf once it has really been paid for.
+// This is the ONLY code that marks an order as 'paid'. It's also where the event's spots go down,
+// so spots are only taken once they have really been paid for.
 import { STRIPE_WEBHOOK_SECRET } from '../config.js'
 import { query, transaction } from '../db.js'
 import { stripe } from '../stripe.js'
 
-// Marks the order as paid and takes the pieces off the stock, all in one transaction.
+// Marks the order as paid and takes the spots off the event, all in one transaction.
 async function markOrderPaid(orderId, sessionId) {
   await transaction(async (client) => {
     // "AND status = 'pending'": Stripe can send the same event more than once. The second time, nothing matches,
-    // so the stock isn't taken off twice. "AND stripe_session_id" makes sure this session really is that order's.
+    // so the spots aren't taken off twice. "AND stripe_session_id" makes sure this session really is that order's.
     const paid = await client.query(
       `UPDATE orders SET status = 'paid', paid_at = now() WHERE id = $1 AND stripe_session_id = $2 AND status = 'pending' RETURNING id`,
       [orderId, sessionId],
     )
     if (paid.rowCount === 0) return
 
-    const { rows: items } = await client.query('SELECT artwork_id, quantity FROM order_items WHERE order_id = $1', [orderId])
+    const { rows: items } = await client.query('SELECT event_id, quantity FROM order_items WHERE order_id = $1', [orderId])
     for (const item of items) {
-      const updated = await client.query('UPDATE artworks SET available = available - $1 WHERE id = $2 AND available >= $1', [
+      const updated = await client.query('UPDATE events SET spots = spots - $1 WHERE id = $2 AND spots >= $1', [
         item.quantity,
-        item.artwork_id,
+        item.event_id,
       ])
-      // Two people paid for the last piece at the same moment. The money has been taken, so the order stays paid;
+      // Two people paid for the last spots at the same moment. The money has been taken, so the order stays paid;
       // this message in the logs says it needs sorting out by hand (a refund from the Stripe dashboard).
-      if (updated.rowCount === 0) console.warn(`Order ${orderId} is paid, but artwork ${item.artwork_id} doesn't have enough left.`)
+      if (updated.rowCount === 0) console.warn(`Order ${orderId} is paid, but event ${item.event_id} doesn't have enough spots left.`)
     }
     console.log(`Order ${orderId} paid.`)
   })

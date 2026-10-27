@@ -76,11 +76,11 @@ function OrderPage({ orderId }) {
   } else {
     // A heading and message for each status.
     const messages = {
-      paid: { title: 'Payment received. Thank you!', text: 'Your order is confirmed. We’ll email you to arrange delivery.' },
+      paid: { title: 'Payment received. Thank you!', text: 'Your spots are confirmed. We’ll email you the event details before the day.' },
       pending: isChecking
         ? { title: 'Confirming your payment…', text: 'Waiting for Stripe to confirm the payment. This usually takes a few seconds.' }
         : { title: 'Still waiting for confirmation', text: 'Stripe hasn’t confirmed this payment yet. If you paid, check again in a moment.' },
-      expired: { title: 'This checkout expired', text: 'No payment was taken. You can start again from the artwork’s page.' },
+      expired: { title: 'This checkout expired', text: 'No payment was taken. You can start again from the event’s page.' },
     }
     const message = messages[order.status]
 
@@ -96,9 +96,9 @@ function OrderPage({ orderId }) {
         {/* What was bought. */}
         <dl className="mt-6 grid grid-cols-[1fr_auto] gap-x-6 gap-y-2 text-left">
           {order.items.map((item) => (
-            <div key={item.artworkId} className="contents">
+            <div key={item.eventId} className="contents">
               <dt>
-                <a href={`#/artwork/${item.artworkId}`} className="text-text underline hover:text-accent">{item.title}</a> &times; {item.quantity}
+                <a href={`#/event/${item.eventId}`} className="text-text underline hover:text-accent">{item.title}</a> &times; {item.quantity} {item.quantity === 1 ? 'spot' : 'spots'}
               </dt>
               <dd className="text-right">{formatPrice(item.unitPrice * item.quantity)}</dd>
             </div>
@@ -126,7 +126,7 @@ function OrderPage({ orderId }) {
       </h1>
       {content}
       <p className="mt-8 text-center">
-        <a href="#shop" className="font-body font-semibold text-accent hover:text-muted">&larr; Back to the Shop</a>
+        <a href="#events" className="font-body font-semibold text-accent hover:text-muted">&larr; Back to Events</a>
       </p>
     </section>
   )

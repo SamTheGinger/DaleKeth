@@ -1,7 +1,7 @@
-// Buying artwork with Stripe Checkout. Both routes need someone signed in (requireUser), so every order
-// belongs to a real account.
-//   POST /api/checkout     { artworkId, quantity }  -> { url }  Creates a 'pending' order and a Stripe Checkout
-//                                                              Session; the browser then goes to url (Stripe's page).
+// Buying spots for a paid event with Stripe Checkout. Both routes need someone signed in (requireUser), so every
+// order belongs to a real account. (Free events are reserved without paying: see routes/bookings.js.)
+//   POST /api/checkout     { eventId, spots }  -> { url }  Creates a 'pending' order and a Stripe Checkout Session;
+//                                                         the browser then goes to url (Stripe's payment page).
 //   GET  /api/orders/:id   -> the order with its items. Only the person who made it can see it.
 //
 // The order is NOT marked as paid here. Being sent back to the success page doesn't prove anything (anyone can
@@ -15,28 +15,34 @@ import { HttpError, parseId, wholeNumber } from '../validate.js'
 
 const router = Router()
 
+const MAX_SPOTS_PER_ORDER = 10 // Matches the limit on the event page.
+
 router.post('/checkout', requireUser, async (req, res) => {
   if (!stripe) throw new HttpError(503, 'Payments aren’t set up yet. Please try again later.')
 
   // The price comes from OUR database, never from the browser: anyone could send { price: 1 } to this address.
-  // The browser only says WHICH artwork and HOW MANY.
-  const [artwork] = await query('SELECT id, title, price, available FROM artworks WHERE id = $1', [parseId(req.body.artworkId)])
-  if (!artwork) throw new HttpError(404, 'Not found.')
-  if (artwork.available === 0) throw new HttpError(409, 'Sorry, this piece has sold out.')
-  const quantity = wholeNumber(req.body.quantity, 'Quantity', { min: 1, max: artwork.available })
+  // The browser only says WHICH event and HOW MANY spots. "date >= CURRENT_DATE" = past events can't be bought.
+  const [event] = await query(
+    `SELECT id, title, price, spots, to_char(date, 'YYYY-MM-DD') AS date FROM events WHERE id = $1 AND date >= CURRENT_DATE`,
+    [parseId(req.body.eventId)],
+  )
+  if (!event) throw new HttpError(404, 'Not found.')
+  if (event.price === 0) throw new HttpError(409, 'This event is free, so there’s nothing to pay. Reserve your spot instead.')
+  if (event.spots === 0) throw new HttpError(409, 'Sorry, this event is fully booked.')
+  const spots = wholeNumber(req.body.spots, 'Spots', { min: 1, max: Math.min(MAX_SPOTS_PER_ORDER, event.spots) })
 
   // All or nothing: if Stripe fails, the transaction is undone and no half-made order is left behind.
   const url = await transaction(async (client) => {
     const { rows: [order] } = await client.query('INSERT INTO orders (user_id, total) VALUES ($1, $2) RETURNING id', [
       req.user.id,
-      artwork.price * quantity,
+      event.price * spots,
     ])
-    await client.query('INSERT INTO order_items (order_id, artwork_id, title, unit_price, quantity) VALUES ($1, $2, $3, $4, $5)', [
+    await client.query('INSERT INTO order_items (order_id, event_id, title, unit_price, quantity) VALUES ($1, $2, $3, $4, $5)', [
       order.id,
-      artwork.id,
-      artwork.title,
-      artwork.price,
-      quantity,
+      event.id,
+      event.title,
+      event.price,
+      spots,
     ])
 
     const session = await stripe.checkout.sessions.create({
@@ -45,17 +51,17 @@ router.post('/checkout', requireUser, async (req, res) => {
       metadata: { orderId: String(order.id) }, // Stripe sends this back in the webhook, so we know which order was paid.
       line_items: [
         {
-          quantity,
+          quantity: spots,
           price_data: {
             currency: 'zar',
-            unit_amount: artwork.price * 100, // Stripe counts in cents: R 6 500 = 650000.
-            product_data: { name: artwork.title },
+            unit_amount: event.price * 100, // Stripe counts in cents: R 250 = 25000.
+            product_data: { name: `${event.title}: 1 spot`, description: `Event on ${event.date}` },
           },
         },
       ],
-      // Where Stripe sends the buyer afterwards: our order page (OrderPage.jsx), or back to the artwork if they cancel.
+      // Where Stripe sends the buyer afterwards: our order page (OrderPage.jsx), or back to the event if they cancel.
       success_url: `${SITE_URL}/#/order/${order.id}`,
-      cancel_url: `${SITE_URL}/#/artwork/${artwork.id}`,
+      cancel_url: `${SITE_URL}/#/event/${event.id}`,
     })
 
     await client.query('UPDATE orders SET stripe_session_id = $1 WHERE id = $2', [session.id, order.id])
@@ -74,7 +80,7 @@ router.get('/orders/:id', requireUser, async (req, res) => {
   if (!order) throw new HttpError(404, 'Not found.')
 
   const items = await query(
-    'SELECT artwork_id AS "artworkId", title, unit_price AS "unitPrice", quantity FROM order_items WHERE order_id = $1 ORDER BY id',
+    'SELECT event_id AS "eventId", title, unit_price AS "unitPrice", quantity FROM order_items WHERE order_id = $1 ORDER BY id',
     [order.id],
   )
   res.json({ ...order, items })
