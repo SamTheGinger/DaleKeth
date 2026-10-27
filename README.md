@@ -3,9 +3,21 @@
 A responsive, dark-themed portfolio, art shop and event-booking site for a portrait and landscape photographer.
 Started for the **Mayerfeld Frontend Developer Practicum** as a static HTML/CSS landing page, and now rebuilt with **React 19**, **Vite** and **Tailwind CSS 4**.
 
-**Live site:** https://aurora-photography-roan.vercel.app · **API:** https://api-production-09396.up.railway.app/api/health
+**Live site:** https://aurora-photography-roan.vercel.app · **API:** https://aurora-photography-api.vercel.app/api/health
 
-## Latest: email subscriptions and a tidier header
+## Latest: buying event spots with Stripe (test mode)
+
+- **Buy Spots for paid events.** On a paid event's page, pick 1 to 10 spots and click **Buy**. The site creates an order and sends you to **Stripe Checkout**, Stripe's own payment page. It's in **test mode**: the money is fake, so pay with the test card `4242 4242 4242 4242`, any future date and any CVC.
+- **Sign-in required.** Only signed-in accounts can buy, so every order belongs to a real user. Visitors see **Sign In to Buy** and come back to the event afterwards.
+- **The price comes from the database,** never from the browser. The browser only says which event and how many spots.
+- **A webhook confirms the payment.** When Stripe has the money, it calls `POST /api/webhooks/stripe`. That route checks Stripe's signature and is the **only** code that marks an order as **paid** and takes the spots off the event.
+- **Order page (`#/order/5`).** Stripe sends you back here after paying. It shows the order, re-checking every 2 seconds in case the webhook arrives a moment after you do, and ends on **"✓ Payment received"**.
+- **New tables:** `orders` (one row per purchase) and `order_items` (which event, how many spots, and the price paid). See [section 7](#7-payments-stripe-checkout).
+- **Free events** (like *Aurora After Dark*, R0) keep a free **Reserve a Spot** form, because Stripe can't charge R0. The server refuses that form for paid events, so nobody can skip paying.
+- **Artworks** keep their **Request to Buy** form (no payment online).
+- **The API moved from Railway to Vercel.** Railway's deploys were paused, so the Express server now runs as its own Vercel project (`aurora-photography-api`). See [Deploying](#deploying).
+
+## Before that: email subscriptions and a tidier header
 
 - **"View" drop-down in the header.** Portfolio, Shop, Events, Book and Subscribe are grouped under **View ▾**, so the header fits on one row on laptops. On phones, View unfolds inside the ☰ menu.
 - **Email subscriptions, sent with [Resend](https://resend.com)** from `sam@bluvibe.co.za` (the bluvibe.co.za domain is verified in Resend):
@@ -46,6 +58,7 @@ Started for the **Mayerfeld Frontend Developer Practicum** as a static HTML/CSS 
 - About section ("The Woman Behind The Lens")
 - Portfolio grid with filters and favourites, linking to likeable gallery pages
 - Shop and Events sections with detail pages, quantity steppers and live price totals
+- Buy event spots with Stripe Checkout (test mode), with an order page that confirms the payment; free events are reserved with a form
 - Photoshoot booking form
 - Accounts (sign up, sign in, sign out) with favourites saved to your account
 - Email subscriptions: opt-in at sign-up, a "Stay In The Loop" section, and a Your Subscription page with unsubscribe
@@ -61,18 +74,23 @@ A walkthrough of how the project is laid out, how signing in works, and how the 
 The project has three parts that run in three different places:
 
 ```
- Browser                      Vercel                          Railway                     Neon
+ Browser                      Vercel (site)                   Vercel (API)                Neon
 ┌──────────────┐   /api/...  ┌──────────────────────┐  /api/...  ┌──────────────────┐   SQL   ┌──────────────┐
 │ React app    │ ──────────▶ │ my-react-app (built) │ ─────────▶ │ server (Express) │ ──────▶ │ Postgres     │
 │ (what you    │ ◀────────── │ + vercel.json proxy  │ ◀───────── │ + Better Auth    │ ◀────── │ database     │
 │  see)        │  JSON+cookie└──────────────────────┘            └──────────────────┘         └──────────────┘
+       │                                                                  ▲
+       │  Buy: redirected to Stripe's checkout page          ┌────────────┴─────┐
+       └───────────────────────────────────────────────────▶ │ Stripe (test)    │  webhook: "this order is paid"
+                                                             └──────────────────┘
 ```
 
-- **Client** (`my-react-app/`): the React website. Hosted on **Vercel**.
-- **Server** (`server/`): the Node.js + Express API. Hosted on **Railway**.
+- **Client** (`my-react-app/`): the React website. Hosted on **Vercel**, project `aurora-photography`.
+- **Server** (`server/`): the Node.js + Express API. Hosted on **Vercel** too, as a separate project, `aurora-photography-api`. It was on Railway until Railway's deploys were paused.
 - **Database**: Postgres on **Neon**. Only the server can reach it.
+- **Payments**: **Stripe** in test mode. The buyer pays on Stripe's page; Stripe then tells the server directly (the webhook).
 
-The browser only ever talks to the Vercel address. `my-react-app/vercel.json` forwards every `/api/...` request on to Railway behind the scenes. Because of this, the sign-in cookie belongs to the website's own address (a *first-party* cookie), so browsers don't block it. In development, `vite.config.js` does the same job, forwarding `/api` from `localhost:5173` to the server on `localhost:3000`.
+The browser only ever talks to the site's address. `my-react-app/vercel.json` forwards every `/api/...` request on to the API behind the scenes. Because of this, the sign-in cookie belongs to the website's own address (a *first-party* cookie), so browsers don't block it. In development, `vite.config.js` does the same job, forwarding `/api` from `localhost:5173` to the server on `localhost:3000`.
 
 ### 2. Folder structure
 
@@ -81,7 +99,7 @@ DaleKeth/
 ├── my-react-app/                  THE CLIENT (React + Vite + Tailwind, deployed to Vercel)
 │   ├── index.html                 Page shell that loads the React app
 │   ├── vite.config.js             Dev server settings; forwards /api to localhost:3000
-│   ├── vercel.json                On Vercel, forwards /api/* to the Railway server
+│   ├── vercel.json                On Vercel, forwards /api/* to the API (aurora-photography-api.vercel.app)
 │   ├── public/Images/             All the photos (the database only stores their paths)
 │   └── src/
 │       ├── main.jsx               Starts React
@@ -89,8 +107,9 @@ DaleKeth/
 │       ├── components/            Header (View ▾ drop-down, Sign In / Sign Out), Portfolio, Shop, Events,
 │       │                          BookingForm, SubscribeSection ("Stay In The Loop"), Footer,
 │       │                          LoadState ("Loading…" / error message), cards and buttons
-│       ├── pages/                 HomePage, GalleryPage, ArtworkPage, EventPage, AuthPage (sign in + sign up,
-│       │                          with the email tick box), SubscriptionPage (#/subscription), NotFoundPage
+│       ├── pages/                 HomePage, GalleryPage, ArtworkPage, EventPage (Buy Spots with Stripe, or
+│       │                          Reserve for free events), OrderPage (#/order/5, after paying), AuthPage
+│       │                          (sign in + sign up, with the email tick box), SubscriptionPage, NotFoundPage
 │       ├── data/navLinks.js       The menu links, including the View group (the only data left in the client)
 │       └── utils/
 │           ├── api.js             apiFetch() and the useApi() hook: every call to the server goes through here
@@ -99,9 +118,11 @@ DaleKeth/
 │           ├── useHashRoute.js    The router (#/gallery/3, #/signin, ...)
 │           └── format.js          Rand prices and dates
 │
-└── server/                        THE API (Node.js + Express 5, deployed to Railway)
-    ├── .env                       Secrets: database URLs, auth secret, Resend key (NOT in git)
+└── server/                        THE API (Node.js + Express 5, deployed to Vercel as aurora-photography-api)
+    ├── .env                       Secrets: database URLs, auth secret, Resend and Stripe keys (NOT in git)
     ├── .env.example               Empty template of .env (in git)
+    ├── vercel.json                Tells Vercel this folder is an Express app
+    ├── .vercelignore              Keeps .env out of uploads to Vercel
     ├── neon.ts                    Neon project settings (used by the neon CLI)
     ├── src/
     │   ├── index.js               Starts the server (app.listen)
@@ -111,11 +132,15 @@ DaleKeth/
     │   ├── auth.js                Better Auth setup (+ the marketingOptIn field and sign-up hook),
     │   │                          requireUser / optionalUser middleware
     │   ├── email.js               Resend: subscriber notifications, the subscribers list, unsubscribe emails
+    │   ├── stripe.js              The Stripe client (null when STRIPE_SECRET_KEY isn't set)
     │   ├── validate.js            Checks everything the browser sends (ids, emails, numbers)
     │   └── routes/
     │       ├── catalog.js         GET photos, artworks, events (public)
     │       ├── favorites.js       GET / PUT / DELETE favourites (signed-in only)
-    │       ├── bookings.js        POST the three forms (anyone; linked to the account if signed in)
+    │       ├── bookings.js        POST the three forms (anyone; linked to the account if signed in).
+    │       │                      Event reservations are for FREE events only
+    │       ├── orders.js          POST /api/checkout and GET /api/orders/:id (signed-in only)
+    │       ├── stripeWebhook.js   Stripe tells us a payment went through: the only place an order becomes paid
     │       ├── subscription.js    GET / POST / DELETE the signed-in person's email subscription
     │       └── resendWebhook.js   Resend tells us when someone unsubscribes from a bulk email
     └── db/
@@ -173,6 +198,7 @@ export async function requireUser(req, res, next) {
 ```
 
 - `favorites.js` uses `requireUser`, and every query includes `WHERE user_id = $1` with `req.user.id`. You can only ever see or change **your own** favourites, even if you call the API directly.
+- `orders.js` uses `requireUser` too: you can't start a checkout without an account, and `GET /api/orders/:id` only finds orders where `user_id` is yours (anyone else's order number answers 404).
 - `bookings.js` uses `optionalUser`: anyone can send a form, and if you're signed in the booking is linked to your account.
 
 **Extra protection built in:**
@@ -181,7 +207,7 @@ export async function requireUser(req, res, next) {
 
 ### 4. Database
 
-**Where it is:** Postgres on **Neon** (project `snowy-river-22482224`, branch `production`). The connection details live in `server/.env`, which `neon env pull` / `neon deploy` filled in, and in Railway's **Variables** for the live server. They're never in git.
+**Where it is:** Postgres on **Neon** (project `snowy-river-22482224`, branch `production`). The connection details live in `server/.env`, which `neon env pull` / `neon deploy` filled in, and in the `aurora-photography-api` Vercel project's **Environment Variables** for the live server. They're never in git.
 
 **Two connection strings**, both for the same database:
 
@@ -203,7 +229,7 @@ export async function query(text, values) {     // query('SELECT * FROM artworks
 
 Values are always passed separately as `$1, $2, …`, never pasted into the SQL text. This prevents **SQL injection**: a visitor can't sneak their own SQL in through a form field.
 
-`transaction()` runs several queries as **all or nothing**. Event bookings use it: taking spots off the event and saving the booking either both happen or neither does. The `UPDATE … WHERE spots >= $1` check means two people can never book the same last spot.
+`transaction()` runs several queries as **all or nothing**. Free event reservations use it: taking spots off the event and saving the booking either both happen or neither does. The `UPDATE … WHERE spots >= $1` check means two people can never reserve the same last spot. Checkout and the Stripe webhook use it too (see section 7).
 
 **The tables:**
 
@@ -218,7 +244,9 @@ Values are always passed separately as `$1, $2, …`, never pasted into the SQL 
 | `artworks` | `schema.sql` | The shop: price in rand, how many `available` |
 | `events` | `schema.sql` | Upcoming events; `spots` has a `CHECK (spots >= 0)` so it can never go negative |
 | `favorites` | `schema.sql` | Which user favourited which photo; `(user_id, photo_id)` can only appear once |
-| `purchase_requests`, `event_bookings`, `photoshoot_bookings` | `schema.sql` | What people send through the three forms |
+| `purchase_requests`, `event_bookings`, `photoshoot_bookings` | `schema.sql` | What people send through the three forms (`event_bookings` = free events only now) |
+| `orders` | `schema.sql` | One row per purchase of event spots: who (`user_id`, required), `status` (`pending` → `paid`, or `expired`), `total` in rand, the Stripe session id, `paid_at` |
+| `order_items` | `schema.sql` | What each order bought: the event, how many spots, and the title and `unit_price` **copied** at the time of purchase |
 
 **How the tables relate.** These are *foreign keys*, meaning a column must match a real row in another table:
 
@@ -230,6 +258,7 @@ photos ──< photo_images
 artworks ──< purchase_requests
 events   ──< event_bookings
 user ──< purchase_requests / event_bookings / photoshoot_bookings   (optional link)
+user ──< orders ──< order_items >── events                          (required link: every order has an owner)
 ```
 
 `ON DELETE CASCADE` on `favorites` means deleting a user also deletes their favourites. The forms use `ON DELETE SET NULL` instead, which keeps the booking but forgets the account.
@@ -251,7 +280,7 @@ What happens when a signed-in visitor taps **Favourite** on a photo:
 
 1. `PhotoCard` → `FavoriteToggle` calls `onFavoriteChange(photoId, true)`, which runs `handleFavoriteChange` in `App.jsx`.
 2. `App.jsx` fills the heart straight away (an *optimistic update*), then calls `apiFetch('/api/favorites/3', { method: 'PUT' })`.
-3. The browser sends `PUT /api/favorites/3` with the session cookie to Vercel, which forwards it to Railway.
+3. The browser sends `PUT /api/favorites/3` with the session cookie to the site on Vercel, which forwards it to the API.
 4. In `app.js`, Express routes `/api/favorites` to `routes/favorites.js`.
 5. `requireUser` reads the cookie, finds the session in Postgres and sets `req.user`.
 6. The route runs `INSERT INTO favorites (user_id, photo_id) … ON CONFLICT DO NOTHING` through the pool to Neon.
@@ -294,7 +323,57 @@ The "You've unsubscribed" email has a **Subscribe again** button that opens `#/s
 
 Resend adds the unsubscribe link automatically and never emails anyone who has unsubscribed.
 
-### 7. Environment variables (`server/.env`)
+### 7. Payments (Stripe Checkout)
+
+Paid event spots are bought with **[Stripe Checkout](https://stripe.com/docs/payments/checkout)** in **test mode**: a real checkout, a real webhook and a real order in the database, with fake money.
+
+**A purchase, start to finish:**
+
+1. On a paid event's page (`EventPage.jsx`), a signed-in visitor picks a number of spots and clicks **Buy**. The page calls `POST /api/checkout` with `{ eventId, spots }`. **No price is sent.**
+2. `orders.js` (behind `requireUser`) looks the event up in the database. It refuses past events, free events, and more spots than are left (at most 10). The price comes from the `events` table.
+3. In one **transaction** it:
+   - inserts an `orders` row (`status = 'pending'`, `total` = price × spots);
+   - inserts an `order_items` row, copying the event's title and price;
+   - asks Stripe for a **Checkout Session**. The amount is in cents (R 250 = `25000`), with `metadata.orderId` set so Stripe can tell us later which order this is.
+
+   It then saves the session id on the order. If Stripe fails, the whole transaction is undone, so no half-made order is left behind.
+4. The server replies with the session's `url`, and the browser goes there: **Stripe's own payment page**. Our site never sees the card number.
+5. The buyer pays (test card `4242 4242 4242 4242`). Stripe then does two things separately:
+   - **Redirects the buyer** to `#/order/<id>` (`OrderPage.jsx`).
+   - **Calls our webhook**, `POST /api/webhooks/stripe`, with a `checkout.session.completed` event.
+6. `stripeWebhook.js`:
+   - Checks the **signature** with `STRIPE_WEBHOOK_SECRET`, so a fake "it's paid" message is rejected with 400.
+   - In one transaction, runs `UPDATE orders SET status = 'paid' … WHERE status = 'pending'` and takes the spots off the event.
+   - Because of `WHERE status = 'pending'`, if Stripe sends the same event twice, the second one changes nothing. That's called being **idempotent**.
+7. `OrderPage.jsx` calls `GET /api/orders/:id`. The webhook can arrive a moment *after* the buyer, so while the order still says `pending` it asks again every 2 seconds (up to about 10 seconds, then shows a **Check Again** button). Then it shows **"✓ Payment received"**.
+
+**Why only the webhook marks orders as paid.** Anyone can type `#/order/5` into the address bar, so landing on the success page proves nothing. Only Stripe knows the payment really happened, and only a correctly signed message from Stripe is trusted.
+
+**Other things the code handles:**
+- If someone abandons the checkout, Stripe sends `checkout.session.expired` after 24 hours and the order becomes `expired`. Spots are only taken when an order is **paid**, so an abandoned checkout never holds any.
+- If two people pay for the very last spot at the same moment, the money has already been taken, so both orders stay paid. The webhook logs a warning for a manual refund from the Stripe dashboard.
+- **Free events can't go through Stripe**, which can't charge R0. They use the free reservation form, and `bookings.js` only accepts it when `price = 0` (in the SQL itself), so calling it directly can't get you paid spots for free.
+
+**Testing it locally** with the [Stripe CLI](https://docs.stripe.com/stripe-cli):
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/webhooks/stripe   # prints a whsec_... secret: put it in server/.env
+```
+
+Then run the server and client (see [Run it locally](#run-it-locally)), sign in, buy spots, and pay with `4242 4242 4242 4242`, any future date and any CVC.
+
+**Live:** Stripe (Test mode) → Developers → Webhooks has an endpoint at `https://aurora-photography-api.vercel.app/api/webhooks/stripe` for `checkout.session.completed` and `checkout.session.expired`. Its own signing secret is the `STRIPE_WEBHOOK_SECRET` set on the API's Vercel project. It's different from the one `stripe listen` prints.
+
+**Seeing the orders:** open the Neon dashboard → Tables → `orders` / `order_items`, or run this in the SQL editor:
+
+```sql
+SELECT o.id, u.email, o.status, o.total, i.title, i.quantity, o.created_at, o.paid_at
+FROM orders o JOIN "user" u ON u.id = o.user_id JOIN order_items i ON i.order_id = o.id
+ORDER BY o.id DESC;
+```
+
+### 8. Environment variables (`server/.env`)
 
 | Variable | What it's for |
 |---|---|
@@ -303,12 +382,14 @@ Resend adds the unsubscribe link automatically and never emails anyone who has u
 | `BETTER_AUTH_SECRET` | Long random string Better Auth uses to sign cookies. If it leaked, someone could forge sessions |
 | `BETTER_AUTH_URL` | The address people use for the site (`http://localhost:5173` locally, the Vercel URL live) |
 | `CLIENT_ORIGINS` | Websites allowed to sign in; anything else gets "Invalid origin" |
-| `PORT` | Local only; Railway sets its own |
+| `PORT` | Local only; Vercel chooses its own |
 | `RESEND_API_KEY` | Resend key (Full access: it manages the subscriber list, not just sending). Optional: without it the site works and emails are skipped |
 | `EMAIL_FROM` | Who emails come from: `Aurora Photography <sam@bluvibe.co.za>` |
 | `MARKETING_NOTIFY_EMAIL` | Who's told about new subscribers: `sam@bluvibe.co.za` |
 | `RESEND_SEGMENT_ID` | The id of the *Aurora Photography subscribers* list in Resend (`npm run subscribers:sync` creates the list and prints it) |
 | `RESEND_WEBHOOK_SECRET` | Lets the server check that webhook calls really come from Resend (Resend → Webhooks → signing secret) |
+| `STRIPE_SECRET_KEY` | Stripe **test** secret key (`sk_test_…`, Stripe → Developers → API keys). Optional: without it, Buy says "Payments aren't set up yet" |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_…`: lets the server check that webhook calls really come from Stripe. Locally it's the one `stripe listen` prints; live, the one on the webhook endpoint in Stripe |
 
 `server/.gitignore` lists `.env`, so it's never committed. `server/src/config.js` stops the server with a clear message if a required variable is missing.
 
@@ -321,7 +402,9 @@ Resend adds the unsubscribe link automatically and never emails anyone who has u
 | `GET /api/artworks` · `GET /api/artworks/:id` | No | Artwork for sale |
 | `GET /api/events` · `GET /api/events/:id` | No | Upcoming events, soonest first |
 | `POST /api/artworks/:id/purchase-requests` | No | `{ quantity, name, email }` |
-| `POST /api/events/:id/bookings` | No | `{ spots, name, email, phone }`; replies with `spotsLeft` |
+| `POST /api/events/:id/bookings` | No | **Free events only.** `{ spots, name, email, phone }`; replies with `spotsLeft` |
+| `POST /api/checkout` | Yes | `{ eventId, spots }` for a paid event → `{ url }` (Stripe's checkout page). Creates a `pending` order |
+| `GET /api/orders/:id` | Yes | One of **your** orders: `{ id, status, total, date, items: [...] }` |
 | `POST /api/photoshoot-bookings` | No | `{ name, email, phone, style }` |
 | `GET /api/favorites` | Yes | The signed-in user's favourite photo ids, e.g. `[3, 11]` |
 | `PUT` / `DELETE /api/favorites/:photoId` | Yes | Add / remove a favourite |
@@ -329,11 +412,12 @@ Resend adds the unsubscribe link automatically and never emails anyone who has u
 | `POST /api/subscription` | Yes | Subscribe (adds them to the Resend list, emails the photographer) |
 | `DELETE /api/subscription` | Yes | Unsubscribe (and email them a confirmation with a "Subscribe again" button) |
 | `POST /api/webhooks/resend` | Resend only | Called by Resend when a contact changes; signature-checked |
+| `POST /api/webhooks/stripe` | Stripe only | Called by Stripe when a checkout is paid or expires; signature-checked. The only thing that marks orders paid |
 | `/api/auth/*` | | Better Auth: `sign-up/email`, `sign-in/email`, `sign-out`, `get-session` |
 
 ## Run it locally
 
-You need [Node.js](https://nodejs.org/) 22 or newer and a free [Neon](https://neon.tech) Postgres database. A [Resend](https://resend.com) key is optional; without it, everything works except the emails.
+You need [Node.js](https://nodejs.org/) 22 or newer and a free [Neon](https://neon.tech) Postgres database. A [Resend](https://resend.com) key is optional; without it, everything works except the emails. A [Stripe](https://stripe.com) test key is optional too; without it, everything works except buying event spots (see section 7 for testing payments locally).
 
 **1. The server** (first terminal):
 
@@ -371,40 +455,52 @@ Other client commands:
 | Colours, fonts, breakpoint | The `@theme` block in `my-react-app/src/index.css` |
 | Portfolio photos and gallery series | `server/db/seed-data/photos.js` then `npm run db:seed` (images go in `my-react-app/public/Images/`) |
 | Artwork, prices and stock | `server/db/seed-data/artworks.js` then `npm run db:seed` |
-| Events, dates and spots | `server/db/seed-data/events.js` then `npm run db:seed` |
+| Events, dates and spots | `server/db/seed-data/events.js` then `npm run db:seed`. A price of `0` makes an event free (Reserve form); anything else is bought with Stripe |
 | Menu links (and what's inside View ▾) | `my-react-app/src/data/navLinks.js` |
 | What the Your Subscription page promises | The `whatYouGet` and `benefits` lists at the top of `my-react-app/src/pages/SubscriptionPage.jsx` |
 | The wording of the automatic emails | `server/src/email.js` (new-subscriber notice and "You've unsubscribed") |
 | Bulk emails to subscribers | The Resend dashboard → Broadcasts (see section 6 above) |
+| What the order page says after paying | The `messages` object in `my-react-app/src/pages/OrderPage.jsx` |
 
 Re-seeding updates titles, prices, images and so on, but never resets stock (`available`, `spots`), so it won't undo real bookings. To change stock, edit it in the Neon SQL editor.
 
 ## Deploying
 
-The API runs on **Railway** and the site on **Vercel**. Vercel forwards every `/api/...` request to Railway (`my-react-app/vercel.json`), so the browser only ever talks to the Vercel address. The sign-in cookie is then a normal first-party cookie, which browsers don't block.
+Both the site and the API run on **Vercel**, as two projects. The site forwards every `/api/...` request to the API (`my-react-app/vercel.json`), so the browser only ever talks to the site's address. The sign-in cookie is then a normal first-party cookie, which browsers don't block.
 
-| Part | Where | Project |
+| Part | Where | Address |
 |---|---|---|
 | Database | Neon, project `snowy-river-22482224`, branch `production` | `server/neon.ts` |
-| API | Railway, project `aurora-photography`, service `api` (Node 22) | https://api-production-09396.up.railway.app |
-| Site | Vercel, project `aurora-photography` (team the-blu-vibe) | https://aurora-photography-roan.vercel.app |
+| API | Vercel, project `aurora-photography-api` (team the-blu-vibe), Express, from `server/` | https://aurora-photography-api.vercel.app |
+| Site | Vercel, project `aurora-photography` (team the-blu-vibe), from `my-react-app/` | https://aurora-photography-roan.vercel.app |
+| Payments | Stripe, **test mode** | Webhook → `https://aurora-photography-api.vercel.app/api/webhooks/stripe` |
 
-**Pushing to `main` deploys both automatically.** Railway rebuilds the API from `server/` and Vercel rebuilds the site from `my-react-app/` (each project's Root Directory is set to its folder). Watch the builds in each dashboard.
+The API used to run on Railway (project `aurora-photography`, service `api`). It moved to Vercel when Railway's deploys were paused. To move it back, change the address in `my-react-app/vercel.json` and update the Stripe and Resend webhooks.
 
-To deploy without pushing (for example, to try something out), use the command-line tools:
+**Pushing to `main` deploys the site automatically.** The **API does not deploy on push** (it isn't connected to GitHub yet), so after changing anything in `server/`, deploy it yourself:
 
 ```bash
-cd server && railway up --service api        # needs: npm i -g @railway/cli, railway login
-cd my-react-app && vercel deploy --prod      # needs: npm i -g vercel, vercel login
+cd server && vercel deploy --prod            # the API (needs: npm i -g vercel, vercel login)
+cd my-react-app && vercel deploy --prod      # the site, without pushing
 ```
+
+To make the API deploy on push too: Vercel → `aurora-photography-api` → Settings → Git → connect the GitHub repo, with **Root Directory** `server`.
 
 After changing the tables or the seed data, run `npm run db:migrate` / `npm run db:seed` in `server/` (they use the direct Neon connection from `server/.env`).
 
-Railway variables: `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (from `neon env pull`), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` and `CLIENT_ORIGINS` (both `https://aurora-photography-roan.vercel.app`), `NODE_ENV=production`, and the five Resend ones from section 7 (`RESEND_API_KEY`, `EMAIL_FROM`, `MARKETING_NOTIFY_EMAIL`, `RESEND_SEGMENT_ID`, `RESEND_WEBHOOK_SECRET`). If the site's address ever changes, update `BETTER_AUTH_URL` and `CLIENT_ORIGINS`, or sign-in will be refused with "Invalid origin" (and the "Subscribe again" button in emails would point to the old address).
+**API environment variables** (Vercel → `aurora-photography-api` → Settings → Environment Variables, *Production*):
+- `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (from `neon env pull`), and `BETTER_AUTH_SECRET`.
+- `BETTER_AUTH_URL` and `CLIENT_ORIGINS`, both `https://aurora-photography-roan.vercel.app`.
+- The Resend ones from section 8: `RESEND_API_KEY`, `EMAIL_FROM`, `MARKETING_NOTIFY_EMAIL`, `RESEND_SEGMENT_ID`, `RESEND_WEBHOOK_SECRET`.
+- `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
+
+Variables are only read when a deployment starts, so **redeploy after changing one**. If the site's address ever changes, update `BETTER_AUTH_URL` and `CLIENT_ORIGINS`, or sign-in will be refused with "Invalid origin" (and the "Subscribe again" button in emails would point to the old address).
+
+**Stripe** (dashboard.stripe.com, **Test mode**): API keys under Developers → API keys. The webhook endpoint is listed in [section 7](#7-payments-stripe-checkout). If the API's address ever changes, update the endpoint.
 
 **Resend** (resend.com, signed in as the site owner):
 - **Domains:** `bluvibe.co.za`, verified. Its three DNS records (`resend._domainkey` TXT, `send` and `rsend` CNAMEs) live at Register Domain SA. Leave them in place, or emails from sam@bluvibe.co.za will be rejected.
-- **Webhooks:** `https://api-production-09396.up.railway.app/api/webhooks/resend`, event `contact.updated`. If the API's address ever changes, update the webhook too.
+- **Webhooks:** event `contact.updated`, pointing at `https://aurora-photography-api.vercel.app/api/webhooks/resend`. It was set up for the old Railway address (`https://api-production-09396.up.railway.app/api/webhooks/resend`), so update it in Resend if it still points there.
 - **Audience:** the *Aurora Photography subscribers* segment.
 
 ## Fonts
@@ -414,7 +510,9 @@ Railway variables: `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (from `neon env pu
 ## Next steps
 
 - Email the photographer (and the customer) when a booking or purchase form is sent. Resend is already set up, so this is mostly new email templates in `server/src/email.js`.
-- Take payments for artwork and event tickets (for example PayFast, Yoco or Stripe).
+- Take payments for artworks too (events already use Stripe), and email buyers a receipt when the webhook marks an order paid.
+- Switch Stripe to live mode for real money (live keys, a live webhook endpoint, and a business profile in Stripe).
+- Connect the API's Vercel project to GitHub so it deploys on push like the site.
 - Save gallery likes to the account too (favourites are saved; likes still reset on refresh).
 - An admin page for viewing bookings (for now, use the Neon dashboard's Tables view).
 - Update `CODE-WALKTHROUGH.md`, which still explains the old HTML/CSS version.
