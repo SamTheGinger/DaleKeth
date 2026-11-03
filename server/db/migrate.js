@@ -1,7 +1,6 @@
-// Creates (or updates) every table: `npm run db:migrate`. Safe to run more than once.
-//   1. Better Auth creates its own tables (user, session, account, verification).
-//   2. Our schema.sql creates the site's tables, some of which point at "user".
-import './use-direct-connection.js' // Must be first: use Neon's direct (unpooled) address for this script.
+// npm run db:migrate — idempotent schema setup.
+// Better Auth's tables are created first because schema.sql has foreign keys to "user".
+import './use-direct-connection.js'
 import { readFile } from 'node:fs/promises'
 import { getMigrations } from 'better-auth/db/migration'
 import { auth } from '../src/auth.js'
@@ -16,7 +15,7 @@ if (toBeCreated.length || toBeAdded.length) {
 }
 
 const schema = await readFile(new URL('./schema.sql', import.meta.url), 'utf8')
-await pool.query(schema) // A file with several statements can be sent in one go.
+await pool.query(schema)
 console.log('Site tables ready.')
 
-await pool.end() // Close the connections so the script can finish.
+await pool.end()

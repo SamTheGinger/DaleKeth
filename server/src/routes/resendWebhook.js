@@ -1,19 +1,13 @@
-// Resend calls this address (a "webhook") whenever a contact on the subscribers list changes, including when
-// someone clicks the unsubscribe link at the bottom of one of the bulk emails (Broadcasts).
-//   POST /api/webhooks/resend   (set up once in Resend → Webhooks, event "contact.updated")
-//
-// When it says someone has unsubscribed, we update their account and email them a confirmation with a
-// "Subscribe again" button, the same email they'd get for unsubscribing on the website.
+// POST /api/webhooks/resend  (Resend → Webhooks, event: contact.updated)
+// Syncs unsubscribes made via Broadcast email links back to the user's account and sends a confirmation.
+// Mounted with express.raw() in app.js: signature verification needs the unparsed body.
 import { RESEND_WEBHOOK_SECRET } from '../config.js'
 import { query } from '../db.js'
 import { resend, sendUnsubscribedEmail } from '../email.js'
 
-// Used in app.js with express.raw(), because checking the signature needs the request body exactly as it arrived.
 export async function handleResendWebhook(req, res) {
   if (!resend || !RESEND_WEBHOOK_SECRET) return res.status(503).json({ error: 'Webhook not set up.' })
 
-  // Anyone on the internet could call this address, so first check the message really came from Resend:
-  // it's signed with a secret only Resend and our server know. verify() throws if the signature is wrong.
   let event
   try {
     event = resend.webhooks.verify({
@@ -30,8 +24,8 @@ export async function handleResendWebhook(req, res) {
   }
 
   if (event.type === 'contact.updated' && event.data.unsubscribed) {
-    // Only if their account still says "subscribed". If it already says unsubscribed, they did it on the website,
-    // which has already sent the confirmation (routes/subscription.js), so we don't send a second one.
+    // The "marketingOptIn = true" guard means unsubscribes initiated on our own site (which update the
+    // database first, see routes/subscription.js) don't trigger a second confirmation email.
     const [user] = await query(
       `UPDATE "user" SET "marketingOptIn" = false, "updatedAt" = now()
        WHERE lower(email) = lower($1) AND "marketingOptIn" = true RETURNING name, email`,
@@ -40,6 +34,5 @@ export async function handleResendWebhook(req, res) {
     if (user) await sendUnsubscribedEmail(user)
   }
 
-  // 200 = "got it". Anything else makes Resend try again later.
   res.json({ received: true })
 }

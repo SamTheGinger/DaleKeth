@@ -1,29 +1,23 @@
-// Public, read-only routes for the site's content. Anyone can call these; no sign-in needed.
-//   GET /api/photos          every portfolio series, each with its gallery images
-//   GET /api/photos/:id      one series
-//   GET /api/artworks        every artwork in the shop
-//   GET /api/artworks/:id
-//   GET /api/events          upcoming events, soonest first
-//   GET /api/events/:id
+// Public, read-only catalogue.
+//   GET /api/photos[/:id]     portfolio series, each with its ordered gallery
+//   GET /api/artworks[/:id]
+//   GET /api/events[/:id]     the list endpoint returns upcoming events only, soonest first
 import { Router } from 'express'
 import { query } from '../db.js'
 import { HttpError, parseId } from '../validate.js'
 
 const router = Router()
 
-// json_agg gathers each photo's images into one list, so the reply has the same shape as the old
-// photos.js: { id, title, category, src, gallery: ['/Images/...', ...] }.
 const PHOTOS_SQL = `
   SELECT p.id, p.title, p.category, p.src,
          COALESCE(json_agg(i.src ORDER BY i.position) FILTER (WHERE i.id IS NOT NULL), '[]') AS gallery
   FROM photos p
   LEFT JOIN photo_images i ON i.photo_id = p.id`
 
-// to_char sends the date as plain '2026-11-21' text. Without it, pg would turn it into a JavaScript Date
-// at midnight in the server's time zone, which can show up as the day before.
+// Dates are returned as 'YYYY-MM-DD' strings; letting pg build a JS Date would apply the server's
+// time zone and can shift the day.
 const EVENT_COLUMNS = `id, title, to_char(date, 'YYYY-MM-DD') AS date, time, venue, price, spots, src, description`
 
-// Answers with the single row, or a 404 when the list is empty.
 function one(rows) {
   if (rows.length === 0) throw new HttpError(404, 'Not found.')
   return rows[0]

@@ -1,15 +1,5 @@
-// Every artwork for sale in the Shop grid on the home page.
-// Seed data: `npm run db:seed` copies this list into the artworks table, and the site reads it from GET /api/artworks.
-// To sell a new piece, put its image in my-react-app/public/Images/, add a new { } object here and run npm run db:seed.
-//
-//   id          a unique number. The page link uses it (#/artwork/1).
-//   title       the artwork's name.
-//   medium      what it is made of or printed on.
-//   size        its size.
-//   price       the price of ONE piece in rand, as a plain number (no "R", no spaces).
-//   available   how many are left. The quantity stepper won't go higher than this.
-//   src         the image path (placeholders for now: swap in photos of the real artwork).
-//   description a sentence or two shown on the artwork's own page.
+// Shop artworks. price is in whole rand; available is the opening stock, applied only when a row is first
+// inserted (re-seeding never resets stock). Run `npm run db:seed` after editing.
 const artworks = [
   {
     id: 1,
@@ -73,4 +63,4 @@ const artworks = [
   },
 ]
 
-export default artworks // Lets other files load this list with: import artworks from './seed-data/artworks.js' (see db/seed.js)
+export default artworks

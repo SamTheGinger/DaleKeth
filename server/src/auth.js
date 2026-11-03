@@ -1,8 +1,5 @@
-// Authentication (sign up, sign in, sessions) is handled by Better Auth.
-// It stores users and sessions in our Postgres database, in tables it creates itself
-// ("user", "session", "account", "verification"); see db/migrate.js.
-// Passwords are hashed before they're saved, and the session is kept in an httpOnly cookie
-// that JavaScript in the browser can't read.
+// Better Auth: email/password accounts with sessions stored in Postgres and sent as an httpOnly cookie.
+// Better Auth owns the user, session, account and verification tables (created by db/migrate.js).
 import { betterAuth } from 'better-auth'
 import { fromNodeHeaders } from 'better-auth/node'
 import { pool } from './db.js'
@@ -11,49 +8,40 @@ import { addSubscriberToList, sendMarketingOptInEmail } from './email.js'
 
 export const auth = betterAuth({
   database: pool,
-  baseURL: BETTER_AUTH_URL, // The address the browser sees. Cookies are marked "Secure" when this is https.
-  // BETTER_AUTH_SECRET is read from the environment automatically.
-  trustedOrigins: CLIENT_ORIGINS, // Requests from any other website are refused.
+  baseURL: BETTER_AUTH_URL,
+  trustedOrigins: CLIENT_ORIGINS,
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
-    autoSignIn: true, // Signing up also signs you in.
+    autoSignIn: true,
   },
   user: {
-    // An extra column on Better Auth's "user" table (npm run db:migrate adds it).
     additionalFields: {
-      marketingOptIn: {
-        type: 'boolean',
-        required: false,
-        defaultValue: false, // Not ticked = no marketing emails.
-        input: true, // The sign-up form is allowed to set it.
-      },
+      marketingOptIn: { type: 'boolean', required: false, defaultValue: false, input: true },
     },
   },
-  // "Hooks" are our own code that Better Auth runs at certain moments.
   databaseHooks: {
     user: {
       create: {
-        // Runs right after a new account is saved. If they ticked the box, email the photographer
-        // and add them to the subscribers list in Resend (for bulk emails).
         after: async (user) => {
           if (!user.marketingOptIn) return
-          // No "await": the sign-up finishes straight away instead of waiting for Resend.
-          // .catch() means a failure is logged, but never breaks the sign-up.
-          sendMarketingOptInEmail(user).catch((error) => console.error('Marketing opt-in email failed:', error.message))
-          addSubscriberToList(user).catch((error) => console.error('Adding to subscribers list failed:', error.message))
+          // Awaited because serverless functions may be frozen once the response is sent.
+          // Failures are logged but never block sign-up.
+          await Promise.all([
+            sendMarketingOptInEmail(user).catch((error) => console.error('Marketing opt-in email failed:', error.message)),
+            addSubscriberToList(user).catch((error) => console.error('Adding to subscribers list failed:', error.message)),
+          ])
         },
       },
     },
   },
 })
 
-// Gives back { user, session } for the request's cookie, or null when nobody is signed in.
 export function getSession(req) {
   return auth.api.getSession({ headers: fromNodeHeaders(req.headers) })
 }
 
-// Express middleware for routes that need a signed-in user. Sets req.user, or answers 401.
+// Middleware: sets req.user or responds 401.
 export async function requireUser(req, res, next) {
   const session = await getSession(req)
   if (!session) {
@@ -63,7 +51,7 @@ export async function requireUser(req, res, next) {
   next()
 }
 
-// Like requireUser, but lets visitors through. req.user is the user, or null.
+// Middleware: sets req.user to the signed-in user, or null for guests.
 export async function optionalUser(req, res, next) {
   const session = await getSession(req)
   req.user = session?.user ?? null

@@ -1,8 +1,7 @@
-// A signed-in user's favourite portfolio series. Every route here needs a session (requireUser),
-// and only ever reads or changes the rows of the user making the request.
-//   GET    /api/favorites           -> [1, 11]  (the photo ids)
-//   PUT    /api/favorites/:photoId  add one   (doing it twice is harmless)
-//   DELETE /api/favorites/:photoId  remove one
+// The signed-in user's favourite portfolio series. All queries are scoped to req.user.id.
+//   GET    /api/favorites           -> [photoId, ...]
+//   PUT    /api/favorites/:photoId  idempotent add
+//   DELETE /api/favorites/:photoId
 import { Router } from 'express'
 import { requireUser } from '../auth.js'
 import { query } from '../db.js'
@@ -18,17 +17,17 @@ router.get('/', async (req, res) => {
 
 router.put('/:photoId', async (req, res) => {
   const photoId = parseId(req.params.photoId)
-  // INSERT ... SELECT only inserts when the photo exists; ON CONFLICT ignores a favourite that's already there.
   const rows = await query(
     `INSERT INTO favorites (user_id, photo_id) SELECT $1, id FROM photos WHERE id = $2
      ON CONFLICT DO NOTHING RETURNING photo_id`,
     [req.user.id, photoId],
   )
+  // No row inserted means either it was already a favourite (fine) or the photo doesn't exist (404).
   if (rows.length === 0) {
     const exists = await query('SELECT 1 FROM photos WHERE id = $1', [photoId])
     if (exists.length === 0) throw new HttpError(404, 'Not found.')
   }
-  res.status(204).end() // 204 = "done, nothing to send back".
+  res.status(204).end()
 })
 
 router.delete('/:photoId', async (req, res) => {

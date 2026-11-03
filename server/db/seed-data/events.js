@@ -1,18 +1,6 @@
-// Upcoming events, such as live art installations.
-// Seed data: `npm run db:seed` copies this list into the events table, and the site reads it from GET /api/events.
-// To add an event, copy one of the { } objects below and change the values.
-//
-//   id          a unique number. The booking page link uses it (#/event/1).
-//   title       the event's name.
-//   date        the date written as YEAR-MONTH-DAY (e.g. '2026-11-21'). It's shown as
-//               "Saturday, 21 November 2026" on the page. Writing it this way also lets
-//               the browser and search engines understand it as a real date.
-//   time        the start and end time, written the way you want it shown.
-//   venue       where it is held.
-//   price       the price of ONE spot in rand, as a plain number. Use 0 for a free event.
-//   spots       how many spots are still open. The stepper won't let people book more.
-//   src         the image for the event card (placeholders for now).
-//   description a short paragraph about the event.
+// Events. date is 'YYYY-MM-DD'; price is in whole rand per spot (0 = free, reserved via form; otherwise
+// bought through Stripe). spots is the opening capacity, applied only when a row is first inserted.
+// Run `npm run db:seed` after editing.
 const events = [
   {
     id: 1,
@@ -52,4 +40,4 @@ const events = [
   },
 ]
 
-export default events // Lets other files load this list with: import events from './seed-data/events.js' (see db/seed.js)
+export default events

@@ -1,8 +1,5 @@
-// Shown when the address doesn't match any page, e.g. #/gallery/99 when there's no photo 99.
-function NotFoundPage() {
+export default function NotFoundPage() {
   return (
-    // min-h-[50vh] = at least half the screen tall, so the footer doesn't jump up.
-    // flex + flex-col + items-center + justify-center = everything centred in the middle.
     <section className="flex min-h-[50vh] flex-col items-center justify-center px-4 py-16 text-center">
       <h1 className="text-4xl text-text sm:text-5xl">
         Page <span className="text-muted">Not Found.</span>
@@ -14,5 +11,3 @@ function NotFoundPage() {
     </section>
   )
 }
-
-export default NotFoundPage // Lets App.jsx load this with: import NotFoundPage from './pages/NotFoundPage.jsx'

@@ -1,7 +1,8 @@
-// Small helpers for checking what the browser sent. Never trust the browser: anyone can send
-// any request to the API, not only through our forms, so every value is checked here too.
+// Request validation helpers. Each returns the cleaned value or throws an HttpError,
+// which the error handler in app.js turns into a JSON response.
 
-// An error the route handlers throw on purpose. The error handler in app.js turns it into a JSON reply.
+export const MAX_SPOTS_PER_BOOKING = 10
+
 export class HttpError extends Error {
   constructor(status, message) {
     super(message)
@@ -9,14 +10,13 @@ export class HttpError extends Error {
   }
 }
 
-// '3' -> 3. Anything that isn't a whole number above 0 is a 404 (no such item).
+// Route ids: anything that isn't a positive integer can't exist, so it's a 404 rather than a 400.
 export function parseId(value) {
   const id = Number(value)
   if (!Number.isInteger(id) || id < 1) throw new HttpError(404, 'Not found.')
   return id
 }
 
-// A required piece of text, trimmed, with a sensible length limit.
 export function text(value, label, maxLength = 200) {
   const trimmed = typeof value === 'string' ? value.trim() : ''
   if (!trimmed) throw new HttpError(400, `${label} is required.`)

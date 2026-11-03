@@ -1,171 +1,115 @@
-import { useEffect, useRef, useState } from 'react' // useState remembers if the menu is open; useEffect sets up listeners; useRef points at the header.
-import navLinks from '../data/navLinks.js' // The list of menu links.
-import { authClient } from '../utils/authClient.js' // Tells us who (if anyone) is signed in.
+import { useEffect, useRef, useState } from 'react'
+import navLinks from '../data/navLinks.js'
+import { authClient } from '../utils/authClient.js'
 
-// The sticky top bar, shown on every page.
-// On screens narrower than 900px the links fold away behind a "hamburger" button (☰).
-// From 900px up (md:) the links sit in a row and the button is hidden.
-// "View ▾" is a drop-down holding Portfolio, Shop, Events and Book (see data/navLinks.js).
-// The last item is "Sign In" for visitors, or "Sign Out" once someone is signed in.
-function Header() {
-  const { data: session, isPending } = authClient.useSession() // session is null when nobody is signed in.
-  // true once the signed-in person has opted in to the emails. Signing up with the box ticked, or clicking
-  // Subscribe at the bottom of the home page, both update this (see SubscribeSection.jsx).
+const barClasses = 'block h-0.5 w-full rounded-sm bg-accent transition duration-200'
+const authClasses =
+  'my-3 inline-block w-full cursor-pointer rounded-full border-2 border-accent px-4 py-1.5 text-center font-body text-base leading-tight font-semibold whitespace-nowrap text-accent transition-colors hover:bg-accent/15 md:my-0 md:w-auto lg:text-lg'
+const textClasses = 'font-body text-base leading-tight font-semibold whitespace-nowrap text-accent transition-colors hover:text-muted lg:text-lg'
+const linkClasses = `${textClasses} block py-3.5 text-center md:inline-block md:py-1`
+const viewButtonClasses = `${textClasses} flex w-full cursor-pointer items-center justify-center gap-1.5 py-3.5 md:w-auto md:py-1`
+const viewLinkClasses = `${textClasses} block py-3 text-center md:px-5 md:py-2 md:hover:bg-accent/15`
+
+// Sticky site header. Below the md breakpoint (900px) links collapse behind a menu button;
+// the "View" item is a dropdown on desktop and an inline accordion on mobile.
+export default function Header() {
+  const { data: session, isPending } = authClient.useSession()
   const isSubscribed = Boolean(session?.user.marketingOptIn)
-  const headerRef = useRef(null) // Gives us the real <header> element so we can measure it.
-
-  // The header's height changes with the screen width (and whether the links fit on one row beside the logo).
-  // Whenever it changes, tell the browser to leave exactly that much room (plus a little) above a section
-  // when a menu link scrolls to it, so the sticky header never covers the section's heading.
-  // (index.css has a fixed fallback for the first moment before this runs.)
-  useEffect(() => {
-    const header = headerRef.current
-    const observer = new ResizeObserver(() => {
-      document.documentElement.style.scrollPaddingTop = `${header.offsetHeight + 16}px`
-    })
-    observer.observe(header) // ResizeObserver calls the function above now, and every time the header's size changes.
-    return () => observer.disconnect()
-  }, [])
-  // isMenuOpen = true when the phone menu is showing. It starts closed (false).
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  // isViewOpen = true when the View drop-down is showing.
   const [isViewOpen, setIsViewOpen] = useState(false)
-  const viewRef = useRef(null) // The View item (button + its links), so we can tell if a click landed inside it.
+  const headerRef = useRef(null)
+  const viewRef = useRef(null)
 
-  // Picking any link closes everything: the phone menu and the View drop-down.
   function closeMenus() {
     setIsMenuOpen(false)
     setIsViewOpen(false)
   }
 
-  // While the View drop-down is open, a click or tap anywhere outside it closes it.
+  // Keep scroll-padding-top in sync with the header's real height so anchor targets aren't hidden beneath it.
   useEffect(() => {
-    if (!isViewOpen) return // Only listen while it's open.
+    const header = headerRef.current
+    const observer = new ResizeObserver(() => {
+      document.documentElement.style.scrollPaddingTop = `${header.offsetHeight + 16}px`
+    })
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [])
+
+  // Close the View dropdown on outside click.
+  useEffect(() => {
+    if (!isViewOpen) return
     function handlePointerDown(event) {
-      // .contains() is true if the click was on the View item or anything inside it.
       if (!viewRef.current.contains(event.target)) setIsViewOpen(false)
     }
     document.addEventListener('pointerdown', handlePointerDown)
     return () => document.removeEventListener('pointerdown', handlePointerDown)
-  }, [isViewOpen]) // Runs again whenever the drop-down opens or closes.
+  }, [isViewOpen])
 
-  // useEffect runs after React has drawn the header. The [] at the end means "only once".
+  // Close menus on Escape, and reset the mobile menu when resizing up to desktop.
   useEffect(() => {
-    // Pressing the Escape key closes the menu and the View drop-down.
     function handleKeyDown(event) {
-      if (event.key === 'Escape') {
-        setIsMenuOpen(false)
-        setIsViewOpen(false)
-      }
+      if (event.key === 'Escape') closeMenus()
     }
-
-    // matchMedia watches the screen width. 56.25rem = 900px (the same as Tailwind's md:).
-    // If the window is made wide enough for the desktop menu, reset the phone menu to closed.
     const desktop = window.matchMedia('(width >= 56.25rem)')
     function handleWidthChange(event) {
-      if (event.matches) setIsMenuOpen(false) // event.matches is true when the window is now 900px or wider.
+      if (event.matches) setIsMenuOpen(false)
     }
 
-    document.addEventListener('keydown', handleKeyDown) // Listen for key presses anywhere on the page.
-    desktop.addEventListener('change', handleWidthChange) // Listen for the window crossing 900px.
+    document.addEventListener('keydown', handleKeyDown)
+    desktop.addEventListener('change', handleWidthChange)
     return () => {
-      // Clean-up: stop listening if the header is ever removed from the page.
       document.removeEventListener('keydown', handleKeyDown)
       desktop.removeEventListener('change', handleWidthChange)
     }
   }, [])
 
-  // Classes shared by the three lines of the hamburger icon:
-  // block = shows as its own box, h-0.5 = 2px tall, w-full = full width of the button,
-  // rounded-sm = slightly rounded ends, bg-accent = gold, transition = animates smoothly when it changes.
-  const barClasses = 'block h-0.5 w-full rounded-sm bg-accent transition duration-200'
-
-  // The Sign In link and Sign Out button look the same: a small gold outline "pill".
-  // w-full on phones (an easy-to-tap row), md:w-auto = only as wide as its text on desktop.
-  const authClasses =
-    'my-3 inline-block w-full cursor-pointer rounded-full border-2 border-accent px-4 py-1.5 text-center font-body text-base leading-tight font-semibold whitespace-nowrap text-accent transition-colors hover:bg-accent/15 md:my-0 md:w-auto lg:text-lg'
-
-  // Every link in the header looks the same: big tap area on phones (block + py-3.5), a row item on desktop.
-  // whitespace-nowrap = the label never breaks onto two lines; hover:text-muted = turns grey when hovered.
-  // The text style shared by every link and the View button: Inter, semibold, gold, grey on hover.
-  const textClasses = 'font-body text-base leading-tight font-semibold whitespace-nowrap text-accent transition-colors hover:text-muted lg:text-lg'
-  const linkClasses = `${textClasses} block py-3.5 text-center md:inline-block md:py-1`
-  // The View button: a full-width row on phones, only as wide as its text on desktop.
-  // flex + gap-1.5 = the label and the arrow sit side by side.
-  const viewButtonClasses = `${textClasses} flex w-full cursor-pointer items-center justify-center gap-1.5 py-3.5 md:w-auto md:py-1`
-  // The links inside View: on desktop each fills the box's width (px-5 inside), so the whole row is clickable.
-  const viewLinkClasses = `${textClasses} block py-3 text-center md:px-5 md:py-2 md:hover:bg-accent/15`
-
   async function handleSignOut() {
     closeMenus()
-    await authClient.signOut() // Deletes the session on the server and clears the cookie. useSession() then updates the whole site.
+    await authClient.signOut()
     window.location.hash = '#hero'
   }
 
   return (
-    // sticky + top-0 = the header stays stuck to the top of the screen while you scroll.
-    // z-10 = it sits on top of the page content. border-b-2 border-muted = a grey line underneath.
     <header ref={headerRef} className="sticky top-0 z-10 border-b-2 border-muted bg-background">
-      {/* <nav> marks this as the main menu.
-          relative = the phone menu (absolute, below) is positioned against this box.
-          flex + items-center + justify-between = logo on the left, button/links on the right, vertically centred.
-          flex-wrap = on desktop, if the links don't fit next to the logo they move to a second row. */}
       <nav className="relative mx-auto flex max-w-275 flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6 sm:py-4">
-        {/* The logo links back to the top of the home page. Text size: text-2xl on phones, sm:text-4xl from 640px, then a little smaller from 900px (md:) so all 7 links fit beside it, and back up to 2.8rem from 1280px (xl:).
-            min-w-0 + <wbr /> = on very narrow screens (or with large text turned on) the logo can break onto two lines
-            between "Aurora" and "Photography." instead of sticking out past the edge of the screen. */}
+        {/* <wbr> lets the logo wrap on very narrow screens instead of overflowing. */}
         <a href="#hero" className="min-w-0 text-2xl leading-tight font-semibold text-text sm:text-4xl md:text-[2rem] lg:text-4xl xl:text-[2.8rem]">
           Aurora<wbr />
           <span className="text-muted">Photography.</span>
         </a>
 
-        {/* The hamburger button. md:hidden = hidden from 900px up, where the links are always visible.
-            size-11 = 44 × 44px, shrink-0 = never squashed by a long logo, flex-col + justify-between = the three lines are spread evenly top to bottom. */}
         <button
           type="button"
           className="flex size-11 shrink-0 cursor-pointer flex-col justify-between rounded-lg border-2 border-accent px-2.5 py-3 transition-colors hover:bg-accent/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text md:hidden"
-          aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'} // What a screen reader says.
-          aria-expanded={isMenuOpen} // Tells screen readers whether the menu is open.
-          aria-controls="primary-navigation" // Names the menu (by its id) that this button opens.
+          aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={isMenuOpen}
+          aria-controls="primary-navigation"
           onClick={() => {
-            setIsMenuOpen(!isMenuOpen) // Flip open ↔ closed.
-            setIsViewOpen(false) // The View list always starts folded when the phone menu opens.
+            setIsMenuOpen(!isMenuOpen)
+            setIsViewOpen(false)
           }}
         >
-          {/* When the menu is open, the top line moves down and turns 45°, the middle line fades out,
-              and the bottom line moves up and turns -45°, which turns ☰ into ✕. */}
+          {/* Hamburger bars animate into an X when open. */}
           <span className={`${barClasses} ${isMenuOpen ? 'translate-y-1.75 rotate-45' : ''}`} />
           <span className={`${barClasses} ${isMenuOpen ? 'opacity-0' : ''}`} />
           <span className={`${barClasses} ${isMenuOpen ? '-translate-y-1.75 -rotate-45' : ''}`} />
         </button>
 
-        {/* The list of links.
-            Phones (no prefix): hidden unless the menu is open; when open it's a drop-down panel (absolute, top-full = just
-            below the header, inset-x-0 = full width) with links stacked top to bottom (flex-col).
-            From 900px (md:): always shown (md:flex), back in the normal layout (md:static), links in a row (md:flex-row),
-            vertically centred (md:items-center) so the View button lines up with the links. */}
         <ul
           id="primary-navigation"
           className={`${isMenuOpen ? 'flex' : 'hidden'} absolute inset-x-0 top-full flex-col border-b-2 border-muted bg-background px-4 shadow-[0_12px_24px_rgba(0,0,0,0.45)] sm:px-6 md:static md:flex md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-5 md:border-0 md:p-0 md:shadow-none lg:gap-8`}
         >
-          {/* One <li> per item in navLinks. key = unique value React needs for lists.
-              border-t = a faint line between items on phones; first:border-t-0 = no line above the first one;
-              md:border-0 = no lines on desktop. */}
           {navLinks.map((link) =>
             link.children ? (
-              // The View drop-down. md:relative = on desktop, its list is positioned against this item.
               <li key={link.label} ref={viewRef} className="border-t border-muted/25 first:border-t-0 md:relative md:border-0">
                 <button
                   type="button"
-                  aria-expanded={isViewOpen} // Tells screen readers whether the list is showing.
-                  aria-controls="view-menu" // Names the list (by its id) that this button opens.
+                  aria-expanded={isViewOpen}
+                  aria-controls="view-menu"
                   onClick={() => setIsViewOpen(!isViewOpen)}
                   className={viewButtonClasses}
                 >
                   {link.label}
-                  {/* A small chevron drawn with SVG. It points down when closed and flips to point up when open (rotate-180).
-                      stroke="currentColor" = drawn in the text's colour, so it's gold and turns grey on hover with the label.
-                      size-3.5 = 14 × 14px. aria-hidden = screen readers skip it (aria-expanded already says open/closed). */}
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 12 12"
@@ -180,23 +124,16 @@ function Header() {
                   </svg>
                 </button>
 
-                {/* The links inside View. Hidden until the button is clicked.
-                    Phones: the list opens in place, slightly indented and tinted (bg-surface), inside the menu.
-                    From 900px (md:): a floating box just below the button (absolute + top-full), centred under it
-                    (left-1/2 + -translate-x-1/2), with a gold border and a shadow, on top of the page (z-20). */}
                 <ul
                   id="view-menu"
                   className={`${isViewOpen ? 'block' : 'hidden'} mb-3 rounded-lg bg-surface md:absolute md:top-full md:left-1/2 md:z-20 md:mt-3 md:mb-0 md:min-w-44 md:-translate-x-1/2 md:border-2 md:border-accent md:bg-background md:py-2 md:shadow-[0_12px_24px_rgba(0,0,0,0.45)]`}
                 >
-                  {/* A link with whenSubscribed (Subscribe) swaps to its other label and address (Subscribed, which
-                      opens #/subscription) once the signed-in person is subscribed. */}
                   {link.children.map((child) => {
                     const item = child.whenSubscribed && isSubscribed ? child.whenSubscribed : child
                     return (
                       <li key={child.href}>
                         <a href={item.href} onClick={closeMenus} className={viewLinkClasses}>
                           {item.label}
-                          {/* A small gold tick after "Subscribed". aria-hidden = screen readers just say "Subscribed". */}
                           {item !== child && <span aria-hidden="true" className="ml-1.5">&#10003;</span>}
                         </a>
                       </li>
@@ -206,7 +143,6 @@ function Header() {
               </li>
             ) : (
               <li key={link.href} className="border-t border-muted/25 first:border-t-0 md:border-0">
-                {/* Picking a link closes the phone menu. */}
                 <a href={link.href} onClick={closeMenus} className={linkClasses}>
                   {link.label}
                 </a>
@@ -214,14 +150,14 @@ function Header() {
             ),
           )}
 
-          {/* Sign In / Sign Out. Nothing is shown for the split second while we check (isPending), so it doesn't flicker. */}
+          {/* Hidden while the session loads to avoid a Sign In / Sign Out flicker. */}
           {!isPending && (
             <li className="border-t border-muted/25 md:border-0">
               {session ? (
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  title={`Signed in as ${session.user.email}`} // Shown when you hover over the button.
+                  title={`Signed in as ${session.user.email}`}
                   aria-label={`Sign out (signed in as ${session.user.email})`}
                   className={authClasses}
                 >
@@ -239,5 +175,3 @@ function Header() {
     </header>
   )
 }
-
-export default Header // Lets App.jsx load this with: import Header from './components/Header.jsx'
