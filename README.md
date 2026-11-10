@@ -204,7 +204,33 @@ Bulk emails are composed and sent from the Resend dashboard (Broadcasts → segm
 | Stripe | Test mode | Webhook → `https://aurora-photography-api.vercel.app/api/webhooks/stripe` |
 | Resend | Domain `bluvibe.co.za` (DNS at Register Domain SA) | Webhook → `https://aurora-photography-api.vercel.app/api/webhooks/resend`, event `contact.updated` |
 
-Production environment variables live in each Vercel project's settings. They are read at deploy time, so **redeploy after changing them**. `BETTER_AUTH_URL` and `CLIENT_ORIGINS` must both equal the site URL, or sign-in fails with "Invalid origin".
+Both Vercel projects are in the `the-blu-vibe` team. Deploying the API needs the Vercel CLI (`npm i -g vercel`, then `vercel login`). To make it deploy on push: Vercel → `aurora-photography-api` → Settings → Git → connect the repository with Root Directory `server`.
+
+Production environment variables live in each Vercel project's settings. They are read at deploy time, so **redeploy after changing them**. `BETTER_AUTH_URL` and `CLIENT_ORIGINS` must both equal the site URL, or sign-in fails with "Invalid origin", and email links would point at the old address.
+
+**Stripe:** the live endpoint receives `checkout.session.completed` and `checkout.session.expired`. Add `checkout.session.async_payment_succeeded` before enabling delayed payment methods. Its signing secret differs from the one `stripe listen` prints.
+
+**Resend:** the DNS records for `bluvibe.co.za` (`resend._domainkey` TXT, `send` and `rsend` CNAMEs) must stay in place or mail from that domain will be rejected. The webhook was originally created for the former Railway API (`api-production-09396.up.railway.app`); confirm it targets the Vercel URL above.
+
+### Operations
+
+Changing catalogue content:
+
+| To change | Edit |
+|-----------|------|
+| Photos, artworks, events | `server/db/seed-data/`, then `npm run db:seed` (image files go in `my-react-app/public/Images/`) |
+| Stock levels | Directly in the database; seeding never resets stock |
+| Theme colours, fonts, breakpoint | `@theme` in `my-react-app/src/index.css` |
+| Navigation | `my-react-app/src/data/navLinks.js` |
+| Email wording | `server/src/email.js` |
+
+Viewing orders (Neon SQL editor):
+
+```sql
+SELECT o.id, u.email, o.status, o.total, i.title, i.quantity, o.created_at, o.paid_at
+FROM orders o JOIN "user" u ON u.id = o.user_id JOIN order_items i ON i.order_id = o.id
+ORDER BY o.id DESC;
+```
 
 ## Roadmap
 
